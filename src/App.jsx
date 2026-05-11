@@ -168,7 +168,7 @@ function AIModal({ onClose }) {
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
           max_tokens: 1000,
-          system: "Sen O'zbekiston video darslar kutubxonasining virtual yordamchisisisan. O'zbek tilida xushmuomala va rasmiy tarzda javob ber. Kurs tanlash, mavzular bo'yicha yo'riqnoma berish, o'quv rejalari tuzish bo'yicha yordam ko'rsat. Platformada texnologiya, matematika, tarix, til, iqtisodiyot, san'at, tabiiy fanlar kurslari mavjud.",
+          system: "Sen O'quv videodarslar kutubxonasining virtual yordamchisisisan. O'zbek tilida xushmuomala va rasmiy tarzda javob ber. Kurs tanlash, mavzular bo'yicha yo'riqnoma berish, o'quv rejalari tuzish bo'yicha yordam ko'rsat. Platformada texnologiya, matematika, tarix, til, iqtisodiyot, san'at, tabiiy fanlar kurslari mavjud.",
           messages: [...hist, { role: "user", content: msg }]
         })
       });
@@ -239,8 +239,8 @@ export default function App() {
 
       {/* TOP BAR */}
       <div style={{ background: COLORS.headerTop, color: "#c8d8f0", fontSize: 12, padding: "4px 0", borderBottom: "1px solid #0d2a52" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span>O'zbekiston Respublikasi | Video Darsliklar Milliy Fondi</span>
+        <div style={{ width: "100%", padding: "0 32px", display: "flex", justifyContent: "space-between", alignItems: "center", boxSizing: "border-box" }}>
+          <span>O'quv Videodarslar Kutubxonasi</span>
           <div style={{ display: "flex", gap: 16 }}>
             <span style={{ cursor: "pointer" }} onClick={() => setShowAI(true)}>🤖 Virtual Yordamchi</span>
             <span>Kirish</span>
@@ -252,12 +252,11 @@ export default function App() {
 
       {/* HEADER */}
       <header style={{ background: COLORS.headerMain, borderBottom: `3px solid ${COLORS.accent}` }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "16px 16px", display: "flex", alignItems: "center", gap: 20 }}>
+        <div style={{ width: "100%", padding: "16px 32px", display: "flex", alignItems: "center", gap: 20, boxSizing: "border-box" }}>
           <div style={{ width: 64, height: 64, background: COLORS.gold, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, flexShrink: 0, border: "3px solid #fff" }}>🎓</div>
           <div>
-            <div style={{ color: COLORS.gold, fontSize: 12, letterSpacing: 1, marginBottom: 2 }}>O'ZBEKISTON RESPUBLIKASI</div>
-            <h1 style={{ color: "#fff", fontSize: 20, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>Video Darsliklar Milliy Kutubxonasi</h1>
-            <div style={{ color: "#b8d0f0", fontSize: 12, marginTop: 2 }}>Alisher Navoiy nomidagi O'zbekiston Milliy kutubxonasi huzurida</div>
+            <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>O'quv Videodarslar Kutubxonasi</h1>
+            <div style={{ color: "#b8d0f0", fontSize: 13, marginTop: 4 }}>Sifatli ta'lim resurslari markazi</div>
           </div>
           {/* Search */}
           <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
@@ -277,7 +276,7 @@ export default function App() {
 
       {/* NAVIGATION */}
       <nav style={{ background: COLORS.navBg, borderBottom: `1px solid ${COLORS.navHover}` }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", display: "flex" }}>
+        <div style={{ width: "100%", padding: "0 32px", display: "flex", boxSizing: "border-box" }}>
           {NAV.map(item => (
             <button key={item.id} onClick={() => setActiveTab(item.id)} style={{ background: activeTab === item.id ? COLORS.accent : "none", color: "#fff", border: "none", padding: "12px 20px", fontSize: 13, cursor: "pointer", fontFamily: "inherit", borderRight: "1px solid rgba(255,255,255,0.1)", fontWeight: activeTab === item.id ? 700 : 400, transition: "background 0.15s" }}
               onMouseEnter={e => { if (activeTab !== item.id) e.currentTarget.style.background = COLORS.navHover; }}
@@ -290,14 +289,14 @@ export default function App() {
 
       {/* BREADCRUMB */}
       <div style={{ background: COLORS.lightBlue, borderBottom: `1px solid ${COLORS.borderBlue}`, padding: "6px 0" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", fontSize: 12, color: COLORS.textMuted }}>
+        <div style={{ width: "100%", padding: "0 32px", fontSize: 12, color: COLORS.textMuted, boxSizing: "border-box" }}>
           🏠 <span style={{ color: COLORS.headerMain, cursor: "pointer" }} onClick={() => setActiveTab("main")}>Bosh sahifa</span>
           {activeTab !== "main" && <> &gt; <span style={{ color: COLORS.headerMain }}>{NAV.find(n => n.id === activeTab)?.label}</span></>}
         </div>
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 16px" }}>
+      <div style={{ width: "100%", padding: "20px 32px", boxSizing: "border-box" }}>
 
         {/* ===== BOSH SAHIFA ===== */}
         {activeTab === "main" && (
@@ -306,8 +305,8 @@ export default function App() {
               {/* Banner */}
               <div style={{ background: `linear-gradient(135deg, ${COLORS.headerMain}, ${COLORS.navBg})`, color: "#fff", borderRadius: 4, padding: "28px 32px", marginBottom: 20, border: `1px solid ${COLORS.borderBlue}`, position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", right: -20, top: -20, fontSize: 140, opacity: 0.07 }}>🎬</div>
-                <div style={{ color: COLORS.gold, fontSize: 11, letterSpacing: 2, marginBottom: 8 }}>O'ZBEKISTON RESPUBLIKASI MILLIY TA'LIM TIZIMI</div>
-                <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px", lineHeight: 1.3 }}>Video Darsliklar Milliy Kutubxonasiga<br />Xush Kelibsiz</h2>
+                <div style={{ color: COLORS.gold, fontSize: 11, letterSpacing: 2, marginBottom: 8 }}>O'QUV VIDEODARSLAR PLATFORMASI</div>
+                <h2 style={{ fontSize: 24, fontWeight: 700, margin: "0 0 12px", lineHeight: 1.3 }}>O'quv Videodarslar Kutubxonasiga<br />Xush Kelibsiz</h2>
                 <p style={{ color: "#b8d0f0", fontSize: 14, lineHeight: 1.7, marginBottom: 20 }}>O'zbekistonning yetakchi olimlar va o'qituvchilari tomonidan tayyorlangan yuqori sifatli video darsliklardan foydalaning.</p>
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.accent, color: "#fff", border: "none", borderRadius: 3, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Video Darsliklarni Ko'rish</button>
@@ -527,8 +526,8 @@ export default function App() {
             <div style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 4, overflow: "hidden" }}>
               <div style={{ background: COLORS.headerMain, color: "#fff", padding: "12px 20px", fontSize: 15, fontWeight: 700 }}>Kutubxona Haqida</div>
               <div style={{ padding: 24, lineHeight: 1.8, fontSize: 14, color: COLORS.text }}>
-                <p><strong>Video Darsliklar Milliy Kutubxonasi</strong> — O'zbekiston Respublikasining yetakchi olimlar va o'qituvchilari tomonidan yaratilgan video darsliklarni bir joyda jamlagan milliy platformadir.</p>
-                <p>Kutubxona O'zbekiston Respublikasi ta'lim vazirligi tasarrufida faoliyat yuritib, oliy ta'lim muassasalari, akademik institutlar va ilmiy markazlar bilan hamkorlikda ish olib boradi.</p>
+                <p><strong>O'quv Videodarslar Kutubxonasi</strong> — yetakchi olimlar va o'qituvchilari tomonidan yaratilgan video darsliklarni bir joyda jamlagan platformadir.</p>
+                <p>Kutubxona oliy ta'lim muassasalari, akademik institutlar va ilmiy markazlar bilan hamkorlikda ish olib boradi.</p>
                 <div style={{ background: COLORS.lightBlue, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 4, padding: 14, margin: "16px 0" }}>
                   <strong style={{ color: COLORS.headerMain }}>Maqsad va vazifalar:</strong>
                   <ul style={{ margin: "8px 0 0", paddingLeft: 20 }}>
@@ -584,26 +583,26 @@ export default function App() {
       <footer style={{ background: COLORS.footerBg, color: COLORS.footerText, marginTop: 40 }}>
         {/* Links bar */}
         <div style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "16px 0" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", display: "flex", gap: 24, flexWrap: "wrap", fontSize: 12 }}>
-            {["O'zbekiston Respublikasi Prezidentining matbuot xizmati", "Hukumat portali", "Oliy Majlis", "Milliy ta'lim tizimi", "Axborot ta'lim tarmog'i (ZiyoNet)"].map((link, i) => (
+          <div style={{ width: "100%", padding: "0 32px", display: "flex", gap: 24, flexWrap: "wrap", fontSize: 12, boxSizing: "border-box" }}>
+            {["Ta'lim portal", "Foydali resurslar", "Hamkorlarimiz", "O'quv qo'llanmalar", "Interaktiv darslar"].map((link, i) => (
               <span key={i} style={{ cursor: "pointer", color: COLORS.footerText }} onMouseEnter={e => e.currentTarget.style.color = "#fff"} onMouseLeave={e => e.currentTarget.style.color = COLORS.footerText}>{link}</span>
             ))}
           </div>
         </div>
         {/* Main footer */}
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 16px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24 }}>
+        <div style={{ width: "100%", padding: "24px 32px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 24, boxSizing: "border-box" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <div style={{ width: 40, height: 40, background: COLORS.gold, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🎓</div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 13 }}>Video Darsliklar</div>
-                <div style={{ fontSize: 11, color: "#7a9cc8" }}>Milliy Kutubxonasi</div>
+                <div style={{ fontWeight: 700, fontSize: 13 }}>O'quv Videodarslar</div>
+                <div style={{ fontSize: 11, color: "#7a9cc8" }}>Kutubxonasi</div>
               </div>
             </div>
-            <p style={{ fontSize: 12, color: "#7a9cc8", lineHeight: 1.7, margin: 0 }}>O'zbekiston Respublikasi Milliy ta'lim tizimiga tegishli rasmiy video darsliklar platformasi.</p>
+            <p style={{ fontSize: 12, color: "#7a9cc8", lineHeight: 1.7, margin: 0 }}>Barcha uchun ochiq sifatli o'quv videodarslar platformasi.</p>
             <div style={{ marginTop: 12, fontSize: 12, color: "#7a9cc8" }}>
               <div>📞 (+99871) 232-83-94</div>
-              <div>📧 video@natlib.uz</div>
+              <div>📧 video@kutubxona.uz</div>
             </div>
           </div>
           <div>
@@ -627,7 +626,7 @@ export default function App() {
           </div>
         </div>
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", padding: "12px 16px", textAlign: "center", fontSize: 11, color: "#7a9cc8" }}>
-          © 2026 O'zbekiston Respublikasi Video Darsliklar Milliy Kutubxonasi. Barcha huquqlar himoyalangan.
+          © 2026 O'quv Videodarslar Kutubxonasi. Barcha huquqlar himoyalangan.
         </div>
       </footer>
 
