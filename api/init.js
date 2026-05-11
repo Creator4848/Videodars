@@ -64,8 +64,8 @@ export default async function handler(req, res) {
       `;
     }
 
-    return res.status(200).json({ success: true, message: "Database initialized successfully" });
+    return res.status(200).json({ success: true, message: "Database initialized successfully", version: "v2-forced-drop" });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message, version: "v2-forced-drop" });
   }
 }
