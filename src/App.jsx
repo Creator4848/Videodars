@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import AuthModal from "./AuthModal";
+import AdminPanel from "./AdminPanel";
 
 const COLORS = {
   headerTop: "#1a3a6b",
@@ -263,6 +265,19 @@ function VideoModal({ video, onClose, onEnroll, lang, t }) {
               ))}
             </tbody>
           </table>
+          {/* YouTube Embed */}
+          {video.youtube_id && (
+            <div style={{ marginBottom: 32, borderRadius: 10, overflow: "hidden", border: `2px solid ${COLORS.borderBlue}`, boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }}>
+              <iframe
+                width="100%" height="380"
+                src={`https://www.youtube.com/embed/${video.youtube_id}`}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title={video.title}
+              />
+            </div>
+          )}
           {/* Description */}
           <div style={{ background: COLORS.lightBlue, border: `2px solid ${COLORS.borderBlue}`, borderRadius: 8, padding: 24, marginBottom: 32 }}>
             <div style={{ fontWeight: 800, color: COLORS.headerMain, marginBottom: 12, fontSize: 16 }}>{lang === "uz" ? "Tavsif:" : lang === "ru" ? "Описание:" : "Description:"}</div>
@@ -360,6 +375,48 @@ export default function App() {
   const [lang, setLang] = useState("uz");
   const t = (key) => TRANSLATIONS[lang][key] || key;
 
+  // AUTH STATE
+  const [currentUser, setCurrentUser] = useState(() => {
+    try { const s = localStorage.getItem("videolib_user"); return s ? JSON.parse(s) : null; } catch { return null; }
+  });
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authInitialTab, setAuthInitialTab] = useState("login");
+  const [pendingVideo, setPendingVideo] = useState(null);
+
+  // DB VIDEOS & SUBJECTS
+  const [dbVideos, setDbVideos] = useState([]);
+  const [dbLoaded, setDbLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/videos").then(r => r.ok ? r.json() : []).then(data => { setDbVideos(data); setDbLoaded(true); }).catch(() => setDbLoaded(true));
+  }, []);
+
+  function handleLoginSuccess(user) {
+    setCurrentUser(user);
+    localStorage.setItem("videolib_user", JSON.stringify(user));
+    setShowAuthModal(false);
+    if (pendingVideo) { setSelectedVideo(pendingVideo); setPendingVideo(null); }
+  }
+
+  function logout() {
+    setCurrentUser(null);
+    localStorage.removeItem("videolib_user");
+    if (activeTab === "admin") setActiveTab("main");
+  }
+
+  function handleVideoClick(video) {
+    if (!currentUser) {
+      setPendingVideo(video);
+      setAuthInitialTab("login");
+      setShowAuthModal(true);
+    } else {
+      setSelectedVideo(video);
+    }
+  }
+
+  // Merge static + DB videos (DB videos shown in catalog when loaded)
+  const allVideos = dbLoaded && dbVideos.length > 0 ? dbVideos.map(v => ({ ...v, youtube_id: v.youtube_id || "" })) : VIDEOS;
+
   const [videos, setVideos] = useState(VIDEOS);
   const [activeTab, setActiveTab] = useState("main");
   const [activeCategory, setActiveCategory] = useState("Barchasi");
@@ -384,6 +441,7 @@ export default function App() {
     { id: "my", label: t("nav_my_room") },
     { id: "about", label: t("nav_about") },
     { id: "contact", label: t("nav_contact") },
+    ...(currentUser?.role === "admin" ? [{ id: "admin", label: "⚙️ Admin" }] : []),
   ];
 
   const CATEGORY_MAP = {
@@ -406,8 +464,18 @@ export default function App() {
           <span style={{ fontWeight: 600 }}>{t("title")}</span>
           <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
             <span style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }} onClick={() => setShowAI(true)}>🤖 {t("virtual_assistant")}</span>
-            <span style={{ cursor: "pointer" }}>{t("login")}</span>
-            <span style={{ cursor: "pointer" }}>{t("register")}</span>
+            {currentUser ? (
+              <>
+                <span style={{ fontWeight: 700, color: "#fff" }}>👤 {currentUser.fullName || currentUser.full_name}</span>
+                {currentUser.role === "admin" && <span style={{ background: "#d4a017", color: "#000", borderRadius: 3, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>ADMIN</span>}
+                <span style={{ cursor: "pointer", color: "#ffcdd2" }} onClick={logout}>Chiqish</span>
+              </>
+            ) : (
+              <>
+                <span style={{ cursor: "pointer" }} onClick={() => { setAuthInitialTab("login"); setShowAuthModal(true); }}>{t("login")}</span>
+                <span style={{ cursor: "pointer" }} onClick={() => { setAuthInitialTab("register"); setShowAuthModal(true); }}>{t("register")}</span>
+              </>
+            )}
             <div style={{ display: "flex", gap: 10, background: "rgba(255,255,255,0.1)", padding: "2px 8px", borderRadius: 4 }}>
               <span onClick={() => setLang("uz")} style={{ cursor: "pointer", fontWeight: lang === "uz" ? 700 : 400, color: lang === "uz" ? "#fff" : "inherit" }}>O'z</span>
               <span style={{ opacity: 0.3 }}>|</span>
@@ -519,7 +587,7 @@ export default function App() {
                   <tbody>
                     {VIDEOS.slice(0, 5).map((v, i) => (
                       <tr key={v.id} style={{ background: i % 2 === 0 ? COLORS.white : COLORS.tableStripe, cursor: "pointer", borderBottom: `1px solid ${COLORS.borderBlue}` }}
-                        onClick={() => setSelectedVideo(v)}
+                        onClick={() => handleVideoClick(v)}
                         onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
                         onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? COLORS.white : COLORS.tableStripe}>
                         <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted }}>{i + 1}</td>
@@ -634,7 +702,7 @@ export default function App() {
                   <tbody>
                     {filtered.map((v, i) => (
                       <tr key={v.id} style={{ background: i % 2 === 0 ? COLORS.white : COLORS.tableStripe, cursor: "pointer", borderBottom: `1px solid ${COLORS.borderBlue}` }}
-                        onClick={() => setSelectedVideo(v)}
+                        onClick={() => handleVideoClick(v)}
                         onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
                         onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? COLORS.white : COLORS.tableStripe}>
                         <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted, textAlign: "center" }}>{i + 1}</td>
@@ -770,6 +838,11 @@ export default function App() {
           </div>
         )}
 
+        {/* ===== ADMIN ===== */}
+        {activeTab === "admin" && currentUser?.role === "admin" && (
+          <AdminPanel onLogout={logout} />
+        )}
+
         {/* ===== CONTACT ===== */}
         {activeTab === "contact" && (
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
@@ -866,6 +939,13 @@ export default function App() {
       {/* MODALS */}
       {selectedVideo && <VideoModal video={selectedVideo} onClose={() => setSelectedVideo(null)} onEnroll={enroll} lang={lang} t={t} />}
       {showAI && <AIModal onClose={() => setShowAI(false)} lang={lang} t={t} />}
+      {showAuthModal && (
+        <AuthModal
+          onClose={() => { setShowAuthModal(false); setPendingVideo(null); }}
+          onSuccess={handleLoginSuccess}
+          initialTab={authInitialTab}
+        />
+      )}
 
       {/* Floating AI */}
       {!showAI && (
