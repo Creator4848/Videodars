@@ -383,12 +383,30 @@ export default function App() {
   const [authInitialTab, setAuthInitialTab] = useState("login");
   const [pendingVideo, setPendingVideo] = useState(null);
 
-  // DB VIDEOS & SUBJECTS
+  // DB DATA
   const [dbVideos, setDbVideos] = useState([]);
+  const [dbSubjects, setDbSubjects] = useState([]);
   const [dbLoaded, setDbLoaded] = useState(false);
 
+  const loadAllData = async () => {
+    try {
+      const [vRes, sRes] = await Promise.all([
+        fetch("/api/videos"),
+        fetch("/api/subjects")
+      ]);
+      const vData = await vRes.json();
+      const sData = await sRes.json();
+      if (vRes.ok) setDbVideos(vData);
+      if (sRes.ok) setDbSubjects(sData);
+      setDbLoaded(true);
+    } catch (err) {
+      console.error("Data load error:", err);
+      setDbLoaded(true);
+    }
+  };
+
   useEffect(() => {
-    fetch("/api/videos").then(r => r.ok ? r.json() : []).then(data => { setDbVideos(data); setDbLoaded(true); }).catch(() => setDbLoaded(true));
+    loadAllData();
   }, []);
 
   function handleLoginSuccess(user) {
@@ -414,10 +432,9 @@ export default function App() {
     }
   }
 
-  // Merge static + DB videos (DB videos shown in catalog when loaded)
-  const allVideos = dbLoaded && dbVideos.length > 0 ? dbVideos.map(v => ({ ...v, youtube_id: v.youtube_id || "" })) : VIDEOS;
+  // Merge static + DB videos
+  const videos = dbLoaded && dbVideos.length > 0 ? dbVideos.map(v => ({ ...v, youtube_id: v.youtube_id || "" })) : VIDEOS;
 
-  const [videos, setVideos] = useState(VIDEOS);
   const [activeTab, setActiveTab] = useState("main");
   const [activeCategory, setActiveCategory] = useState("Barchasi");
   const [search, setSearch] = useState("");
@@ -426,12 +443,26 @@ export default function App() {
   const [sortBy, setSortBy] = useState("date");
   const [mobileMenu, setMobileMenu] = useState(false);
 
-  function enroll(id) { setVideos(prev => prev.map(v => v.id === id ? { ...v, enrolled: true } : v)); }
+  async function deleteVideo(id) {
+    if (!confirm(lang === "uz" ? "Videoni o'chirishni tasdiqlaysizmi?" : "Confirm video deletion?")) return;
+    try {
+      const r = await fetch(`/api/videos?id=${id}`, { method: "DELETE" });
+      if (r.ok) loadAllData();
+    } catch (err) { console.error(err); }
+  }
 
   const filtered = videos
-    .filter(v => activeCategory === "Barchasi" || v.category === activeCategory)
-    .filter(v => v.title.toLowerCase().includes(search.toLowerCase()) || v.author.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => sortBy === "date" ? b.date.localeCompare(a.date) : sortBy === "views" ? b.views - a.views : a.title.localeCompare(b.title));
+    .filter(v => {
+      if (activeCategory === "Barchasi") return true;
+      // If it's a DB video, category might be subject_id
+      return v.category === activeCategory || String(v.subject_id) === activeCategory;
+    })
+    .filter(v => v.title.toLowerCase().includes(search.toLowerCase()) || (v.author && v.author.toLowerCase().includes(search.toLowerCase())))
+    .sort((a, b) => {
+      if (sortBy === "date") return (b.date || b.created_at || "").localeCompare(a.date || a.created_at || "");
+      if (sortBy === "views") return (b.views || 0) - (a.views || 0);
+      return (a.title || "").localeCompare(b.title || "");
+    });
 
   const enrolled = videos.filter(v => v.enrolled);
 
@@ -444,15 +475,12 @@ export default function App() {
     ...(currentUser?.role === "admin" ? [{ id: "admin", label: "⚙️ Admin" }] : []),
   ];
 
-  const CATEGORY_MAP = {
-    "Barchasi": t("cat_all"),
-    "Tabiiy fanlar": t("cat_science"),
-    "Ijtimoiy fanlar": t("cat_social"),
-    "Texnologiya": t("cat_tech"),
-    "San'at va madaniyat": t("cat_art"),
-    "Tillar": t("cat_lang"),
-    "Tarix": t("cat_history"),
-    "Iqtisodiyot": t("cat_economy")
+  // Use DB subjects for catalog categories
+  const DYNAMIC_CATEGORIES = ["Barchasi", ...dbSubjects.map(s => String(s.id))];
+  const CATEGORY_LABEL = (id) => {
+    if (id === "Barchasi") return t("cat_all");
+    const sub = dbSubjects.find(s => String(s.id) === id);
+    return sub ? sub.name : id;
   };
 
   return (
@@ -490,7 +518,7 @@ export default function App() {
       {/* HEADER */}
       <header style={{ background: COLORS.headerMain, borderBottom: `4px solid ${COLORS.accent}` }}>
         <div style={{ width: "100%", padding: "24px 40px", display: "flex", alignItems: "center", gap: 24, boxSizing: "border-box" }}>
-          <div style={{ width: 80, height: 80, background: COLORS.gold, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36, flexShrink: 0, border: "4px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>🎓</div>
+          {/* Logo removed */}
           <div style={{ flex: 1 }}>
             <h1 style={{ color: "#fff", fontSize: 32, fontWeight: 800, margin: 0, lineHeight: 1.1, letterSpacing: "-0.5px" }}>{t("title")}</h1>
             <div style={{ color: "#b8d0f0", fontSize: 16, marginTop: 6, fontWeight: 500, opacity: 0.9 }}>{t("subtitle")}</div>
@@ -585,14 +613,14 @@ export default function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {VIDEOS.slice(0, 5).map((v, i) => (
+                    {videos.slice(0, 5).map((v, i) => (
                       <tr key={v.id} style={{ background: i % 2 === 0 ? COLORS.white : COLORS.tableStripe, cursor: "pointer", borderBottom: `1px solid ${COLORS.borderBlue}` }}
                         onClick={() => handleVideoClick(v)}
                         onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
                         onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? COLORS.white : COLORS.tableStripe}>
                         <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted }}>{i + 1}</td>
                         <td style={{ padding: "14px 24px", fontSize: 16, color: COLORS.headerMain, fontWeight: 700 }}>{v.title}</td>
-                        <td style={{ padding: "14px 24px" }}><CategoryTag cat={CATEGORY_MAP[v.category] || v.category} /></td>
+                        <td style={{ padding: "14px 24px" }}><CategoryTag cat={v.category || (v.subject_id && CATEGORY_LABEL(String(v.subject_id))) || "—"} /></td>
                         <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted, fontWeight: 500 }}>{v.author}</td>
                         <td style={{ padding: "14px 24px", fontSize: 14, color: COLORS.textMuted }}>{v.date}</td>
                       </tr>
@@ -665,7 +693,7 @@ export default function App() {
                 <div>
                   <label style={{ fontSize: 14, color: COLORS.textMuted, marginRight: 8, fontWeight: 600 }}>{t("search_cat")}:</label>
                   <select value={activeCategory} onChange={e => setActiveCategory(e.target.value)} style={{ border: `1px solid ${COLORS.borderBlue}`, borderRadius: 4, padding: "8px 16px", fontSize: 15, color: COLORS.text, outline: "none", fontWeight: 500 }}>
-                    {CATEGORIES.map(c => <option key={c} value={c}>{CATEGORY_MAP[c]}</option>)}
+                    {DYNAMIC_CATEGORIES.map(c => <option key={c} value={c}>{CATEGORY_LABEL(c)}</option>)}
                   </select>
                 </div>
                 <div>
@@ -684,8 +712,8 @@ export default function App() {
 
               {/* Category pills */}
               <div style={{ borderBottom: `1px solid ${COLORS.borderBlue}`, padding: "12px 24px", display: "flex", gap: 10, overflowX: "auto", background: COLORS.white }}>
-                {CATEGORIES.map(c => (
-                  <button key={c} onClick={() => setActiveCategory(c)} style={{ background: activeCategory === c ? COLORS.headerMain : COLORS.white, color: activeCategory === c ? "#fff" : COLORS.headerMain, border: `2px solid ${activeCategory === c ? COLORS.headerMain : COLORS.borderBlue}`, borderRadius: 20, padding: "6px 20px", fontSize: 14, cursor: "pointer", whiteSpace: "nowrap", fontWeight: 600, transition: "all 0.2s" }}>{CATEGORY_MAP[c]}</button>
+                {DYNAMIC_CATEGORIES.map(c => (
+                  <button key={c} onClick={() => setActiveCategory(c)} style={{ background: activeCategory === c ? COLORS.headerMain : COLORS.white, color: activeCategory === c ? "#fff" : COLORS.headerMain, border: `2px solid ${activeCategory === c ? COLORS.headerMain : COLORS.borderBlue}`, borderRadius: 20, padding: "6px 20px", fontSize: 14, cursor: "pointer", whiteSpace: "nowrap", fontWeight: 600, transition: "all 0.2s" }}>{CATEGORY_LABEL(c)}</button>
                 ))}
               </div>
 
@@ -710,13 +738,18 @@ export default function App() {
                           <div style={{ fontWeight: 700, color: COLORS.headerMain, fontSize: 16 }}>{v.title}</div>
                           <div style={{ fontSize: 14, color: COLORS.textMuted }}>{v.author}</div>
                         </td>
-                        <td style={{ padding: "14px 24px" }}><CategoryTag cat={CATEGORY_MAP[v.category] || v.category} /></td>
+                        <td style={{ padding: "14px 24px" }}><CategoryTag cat={v.category || (v.subject_id && CATEGORY_LABEL(String(v.subject_id))) || "—"} /></td>
                         <td style={{ padding: "14px 24px", textAlign: "center" }}><LevelBadge level={v.level} /></td>
-                        <td style={{ padding: "14px 24px", textAlign: "center", fontSize: 15, color: COLORS.textMuted }}>{v.duration}</td>
-                        <td style={{ padding: "14px 24px", textAlign: "center", fontSize: 15, color: COLORS.textMuted }}>{v.views.toLocaleString()}</td>
-                        <td style={{ padding: "14px 24px", textAlign: "center", fontSize: 14, color: COLORS.textMuted }}>{v.date}</td>
+                        <td style={{ padding: "14px 24px", textAlign: "center", fontSize: 15, color: COLORS.textMuted }}>{v.duration || "—"}</td>
+                        <td style={{ padding: "14px 24px", textAlign: "center", fontSize: 15, color: COLORS.textMuted }}>{(v.views || 0).toLocaleString()}</td>
+                        <td style={{ padding: "14px 24px", textAlign: "center", fontSize: 14, color: COLORS.textMuted }}>{v.date || (v.created_at && new Date(v.created_at).toLocaleDateString()) || "—"}</td>
                         <td style={{ padding: "14px 24px", textAlign: "center" }}>
-                          <button style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "8px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>{lang === "uz" ? "Ko'rish" : lang === "ru" ? "Смотреть" : "View"}</button>
+                          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                            <button onClick={(e) => { e.stopPropagation(); handleVideoClick(v); }} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{lang === "uz" ? "Ko'rish" : lang === "ru" ? "Смотреть" : "View"}</button>
+                            {currentUser?.role === "admin" && (
+                              <button onClick={(e) => { e.stopPropagation(); deleteVideo(v.id); }} style={{ background: COLORS.accent, color: "#fff", border: "none", borderRadius: 4, padding: "8px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>🗑️</button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -840,7 +873,7 @@ export default function App() {
 
         {/* ===== ADMIN ===== */}
         {activeTab === "admin" && currentUser?.role === "admin" && (
-          <AdminPanel onLogout={logout} />
+          <AdminPanel onLogout={logout} onRefresh={loadAllData} />
         )}
 
         {/* ===== CONTACT ===== */}
@@ -893,7 +926,7 @@ export default function App() {
         <div style={{ width: "100%", padding: "48px 40px", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr", gap: 48, boxSizing: "border-box" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-              <div style={{ width: 48, height: 48, background: COLORS.gold, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px solid #fff" }}>🎓</div>
+              {/* Logo removed */}
               <div>
                 <div style={{ fontWeight: 800, fontSize: 16 }}>{t("title")}</div>
                 <div style={{ fontSize: 12, color: "#7a9cc8", fontWeight: 500 }}>{t("subtitle")}</div>

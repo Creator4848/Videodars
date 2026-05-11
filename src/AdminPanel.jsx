@@ -98,7 +98,7 @@ function AddVideoModal({ subjects, onClose, onSave }) {
     );
 }
 
-export default function AdminPanel({ onLogout }) {
+export default function AdminPanel({ onLogout, onRefresh }) {
     const [subTab, setSubTab] = useState("videos");
     const [subjects, setSubjects] = useState([]);
     const [videos, setVideos] = useState([]);
@@ -128,23 +128,35 @@ export default function AdminPanel({ onLogout }) {
         if (!newSubjectName.trim()) return;
         const r = await fetch("/api/subjects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: newSubjectName.trim() }) });
         const data = await r.json();
-        if (r.ok) { setSubjects(p => [...p, data]); setNewSubjectName(""); if (!selSubject) setSelSubject(data); flash("Fan qo'shildi ✓"); }
+        if (r.ok) {
+            setSubjects(p => [...p, data]);
+            setNewSubjectName("");
+            if (!selSubject) setSelSubject(data);
+            flash("Fan qo'shildi ✓");
+            if (onRefresh) onRefresh();
+        }
     }
 
     async function deleteSubject(id) {
         if (!confirm("Fanni o'chirishni tasdiqlaysizmi? Unga tegishli barcha videolar ham o'chadi.")) return;
-        await fetch(`/api/subjects?id=${id}`, { method: "DELETE" });
-        const updated = subjects.filter(s => s.id !== id);
-        setSubjects(updated);
-        if (selSubject?.id === id) { setSelSubject(updated[0] || null); setVideos([]); }
-        flash("Fan o'chirildi");
+        const r = await fetch(`/api/subjects?id=${id}`, { method: "DELETE" });
+        if (r.ok) {
+            const updated = subjects.filter(s => s.id !== id);
+            setSubjects(updated);
+            if (selSubject?.id === id) { setSelSubject(updated[0] || null); setVideos([]); }
+            flash("Fan o'chirildi");
+            if (onRefresh) onRefresh();
+        }
     }
 
     async function deleteVideo(id) {
         if (!confirm("Videoni o'chirishni tasdiqlaysizmi?")) return;
-        await fetch(`/api/videos?id=${id}`, { method: "DELETE" });
-        setVideos(p => p.filter(v => v.id !== id));
-        flash("Video o'chirildi");
+        const r = await fetch(`/api/videos?id=${id}`, { method: "DELETE" });
+        if (r.ok) {
+            setVideos(p => p.filter(v => v.id !== id));
+            flash("Video o'chirildi");
+            if (onRefresh) onRefresh();
+        }
     }
 
     function flash(m) { setMsg(m); setTimeout(() => setMsg(""), 2500); }
@@ -178,6 +190,7 @@ export default function AdminPanel({ onLogout }) {
                 </div>
             </div>
 
+            {/* ... rest of the component ... */}
             {msg && <div style={{ background: C.greenLight, border: `1px solid #a5d6a7`, borderRadius: 6, padding: "10px 18px", color: C.green, fontWeight: 700, marginBottom: 16 }}>✅ {msg}</div>}
 
             {/* ===== VIDEOS TAB ===== */}
@@ -322,7 +335,7 @@ export default function AdminPanel({ onLogout }) {
                     </div>
                 </div>
             )}
-            {showAddVideo && <AddVideoModal subjects={subjects} onClose={() => setShowAddVideo(false)} onSave={v => { setVideos(p => [v, ...p]); setShowAddVideo(false); flash("Video qo'shildi ✓"); }} />}
+            {showAddVideo && <AddVideoModal subjects={subjects} onClose={() => setShowAddVideo(false)} onSave={v => { setVideos(p => [v, ...p]); setShowAddVideo(false); flash("Video qo'shildi ✓"); if (onRefresh) onRefresh(); }} />}
         </div>
     );
 }
