@@ -12,10 +12,8 @@ export default async function handler(req, res) {
   try {
     const sql = getDb();
 
-    // Drop existing tables to ensure clean schema (WARNING: destroys data)
-    await sql`DROP TABLE IF EXISTS videos`;
-    await sql`DROP TABLE IF EXISTS subjects`;
-    await sql`DROP TABLE IF EXISTS users`;
+    // Drop existing tables with CASCADE to handle foreign key dependencies
+    await sql`DROP TABLE IF EXISTS videos, subjects, users CASCADE`;
 
     // Create users table
     await sql`
