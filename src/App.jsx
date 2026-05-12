@@ -336,17 +336,31 @@ function AIModal({ onClose, lang, t }) {
       const hist = messages.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
       const systemPrompt = `Sen O'quv videodarslar kutubxonasining virtual yordamchisisan. Hozirgi tanlangan til: ${lang}. Shu tilda xushmuomala va rasmiy tarzda javob ber. Platformada texnologiya, matematika, tarix, til, iqtisodiyot, san'at, tabiiy fanlar kurslari mavjud.`;
 
+      const payload = {
+        model: "llama3-8b-8192",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...hist.concat({ role: "user", content: msg })
+        ],
+        temperature: 0.7,
+        max_tokens: 1024
+      };
+
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system: systemPrompt,
-          messages: hist.concat({ role: "user", content: msg })
-        })
+        body: JSON.stringify(payload)
       });
+      
       const data = await res.json();
-      const text = data.choices?.[0]?.message?.content || "Xatolik yuz berdi.";
-      setMessages(p => [...p, { role: "assistant", text }]);
+      
+      if (!res.ok) {
+        const errorMsg = data.details?.error?.message || data.error || "Xatolik yuz berdi";
+        setMessages(p => [...p, { role: "assistant", text: `Xato: ${errorMsg}` }]);
+      } else {
+        const text = data.choices?.[0]?.message?.content || "Javob olinmadi.";
+        setMessages(p => [...p, { role: "assistant", text }]);
+      }
     } catch {
       setMessages(p => [...p, { role: "assistant", text: lang === "uz" ? "Tarmoq xatosi. Iltimos qayta urinib ko'ring." : "Network error. Please try again." }]);
     }
