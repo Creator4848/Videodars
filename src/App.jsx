@@ -42,10 +42,10 @@ const TRANSLATIONS = {
     stat_users: "Foydalanuvchilar",
     stat_hours: "O'quv soatlari",
     stat_inst: "Muassasalar",
-    new_lessons: "📌 Yangi qo'shilgan darsliklar",
+    new_lessons: " Yangi qo'shilgan darsliklar",
     view_all: "Barchasi →",
-    news_announcements: "📢 Yangiliklar va E'lonlar",
-    quick_links: "⚡ Tezkor Havolalar",
+    news_announcements: " Yangiliklar va E'lonlar",
+    quick_links: " Tezkor Havolalar",
     ai_promo_title: "Virtual Yordamchi",
     ai_promo_text: "Sun'iy intellekt yordamida kurs tanlang, o'quv rejangizni tuzing.",
     apply: "Murojaat qilish",
@@ -86,10 +86,10 @@ const TRANSLATIONS = {
     stat_users: "Пользователи",
     stat_hours: "Учебные часы",
     stat_inst: "Учреждения",
-    new_lessons: "📌 Недавно добавленные уроки",
+    new_lessons: " Недавно добавленные уроки",
     view_all: "Все →",
-    news_announcements: "📢 Новости и объявления",
-    quick_links: "⚡ Быстрые ссылки",
+    news_announcements: " Новости и объявления",
+    quick_links: " Быстрые ссылки",
     ai_promo_title: "Виртуальный помощник",
     ai_promo_text: "Выбирайте курсы и планируйте обучение с помощью ИИ.",
     apply: "Обратиться",
@@ -130,10 +130,10 @@ const TRANSLATIONS = {
     stat_users: "Users",
     stat_hours: "Study Hours",
     stat_inst: "Institutions",
-    new_lessons: "📌 Recently Added Lessons",
+    new_lessons: " Recently Added Lessons",
     view_all: "All →",
-    news_announcements: "📢 News and Announcements",
-    quick_links: "⚡ Quick Links",
+    news_announcements: " News and Announcements",
+    quick_links: " Quick Links",
     ai_promo_title: "Virtual Assistant",
     ai_promo_text: "Choose courses and plan your studies with the help of AI.",
     apply: "Apply",
@@ -171,10 +171,10 @@ const VIDEOS = [
 ];
 
 const STATS = [
-  { label: "Video darsliklar", value: "1,250+", icon: "🎬" },
-  { label: "Ro'yxatdan o'tgan foydalanuvchilar", value: "48,300+", icon: "👥" },
+  { label: "Video darsliklar", value: "1,250+", icon: "" },
+  { label: "Ro'yxatdan o'tgan foydalanuvchilar", value: "48,300+", icon: "" },
   { label: "O'quv soatlari", value: "3,600+", icon: "⏱" },
-  { label: "Muassasalar", value: "120+", icon: "🏛️" },
+  { label: "Muassasalar", value: "120+", icon: "️" },
 ];
 
 const NOTICES = [
@@ -192,6 +192,20 @@ function LevelBadge({ level }) {
 
 function CategoryTag({ cat }) {
   return <span style={{ background: COLORS.lightBlue, color: COLORS.headerMain, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 3, padding: "2px 8px", fontSize: 11 }}>{cat}</span>;
+}
+
+function VideoPreviewCell({ video }) {
+  if (!video.youtube_id) {
+    return <div style={{ width: "120px", height: "68px", borderRadius: "6px", background: COLORS.borderBlue, display: "flex", alignItems: "center", justifyContent: "center", color: COLORS.headerMain, fontSize: 12, fontWeight: 700 }}>VIDEO</div>;
+  }
+  return (
+    <div style={{ position: "relative", width: "120px", height: "68px", borderRadius: "6px", overflow: "hidden", background: "#000" }}>
+      <img src={`https://img.youtube.com/vi/${video.youtube_id}/mqdefault.jpg`} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.8 }} alt="" />
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 30, height: 20, background: "rgba(200, 16, 46, 0.9)", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 0, height: 0, borderTop: "5px solid transparent", borderBottom: "5px solid transparent", borderLeft: "8px solid #fff", marginLeft: 2 }} />
+      </div>
+    </div>
+  );
 }
 
 function VideoRow({ video, onClick, idx }) {
@@ -212,7 +226,7 @@ function VideoRow({ video, onClick, idx }) {
       <td style={{ padding: "10px 14px", textAlign: "center", fontSize: 12, color: COLORS.textMuted }}>{video.date}</td>
       <td style={{ padding: "10px 14px", textAlign: "center" }}>
         {video.enrolled
-          ? <span style={{ color: "#2e7d32", fontSize: 12, fontWeight: 600 }}>✓ Yozilgan</span>
+          ? <span style={{ color: "#2e7d32", fontSize: 12, fontWeight: 600 }}> Yozilgan</span>
           : <button style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 3, padding: "4px 10px", fontSize: 12, cursor: "pointer" }}>Ko'rish</button>}
       </td>
     </tr>
@@ -236,7 +250,7 @@ function VideoModal({ video, onClose, onEnroll, lang, t }) {
         {/* Modal header */}
         <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontWeight: 800, fontSize: 18 }}>{lang === "uz" ? "Video Darslik Ma'lumotlari" : lang === "ru" ? "Информация о видеоуроке" : "Video Lesson Information"}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 24, cursor: "pointer", lineHeight: 1 }}>✕</button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 24, cursor: "pointer", lineHeight: 1 }}></button>
         </div>
         {/* Red title bar */}
         <div style={{ background: COLORS.accent, color: "#fff", padding: "16px 24px" }}>
@@ -247,16 +261,16 @@ function VideoModal({ video, onClose, onEnroll, lang, t }) {
           <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: 32, border: `1px solid ${COLORS.borderBlue}` }}>
             <tbody>
               {[
-                [lang === "uz" ? "Muallif" : lang === "ru" ? "Автор" : "Author", video.author],
-                [lang === "uz" ? "Muassasa" : lang === "ru" ? "Учреждение" : "Institution", video.institution],
-                [t("search_cat"), CATEGORY_MAP[video.category] || video.category],
-                [lang === "uz" ? "Daraja" : lang === "ru" ? "Уровень" : "Level", video.level],
-                [lang === "uz" ? "Davomiyligi" : lang === "ru" ? "Длительность" : "Duration", video.duration],
-                [lang === "uz" ? "Darslar soni" : lang === "ru" ? "Кол-во уроков" : "Number of Lessons", video.lessons + (lang === "uz" ? " ta" : "")],
-                ["Format", video.format],
-                [lang === "uz" ? "Hajm" : lang === "ru" ? "Размер" : "Size", video.size],
-                [lang === "uz" ? "Qo'shilgan sana" : lang === "ru" ? "Дата добавления" : "Date Added", video.date],
-                [lang === "uz" ? "Ko'rilgan" : lang === "ru" ? "Просмотры" : "Views", video.views.toLocaleString() + (lang === "uz" ? " marta" : "")],
+                [lang === "uz" ? "Muallif" : lang === "ru" ? "Автор" : "Author", video.author || "—"],
+                [lang === "uz" ? "Muassasa" : lang === "ru" ? "Учреждение" : "Institution", video.institution || "—"],
+                [t("search_cat"), CATEGORY_MAP[video.category] || video.category || "—"],
+                [lang === "uz" ? "Daraja" : lang === "ru" ? "Уровень" : "Level", video.level || "—"],
+                [lang === "uz" ? "Davomiyligi" : lang === "ru" ? "Длительность" : "Duration", video.duration || "—"],
+                [lang === "uz" ? "Darslar soni" : lang === "ru" ? "Кол-во уроков" : "Number of Lessons", video.lessons ? video.lessons + (lang === "uz" ? " ta" : "") : "—"],
+                ["Format", video.format || "—"],
+                [lang === "uz" ? "Hajm" : lang === "ru" ? "Размер" : "Size", video.size || "—"],
+                [lang === "uz" ? "Qo'shilgan sana" : lang === "ru" ? "Дата добавления" : "Date Added", video.date || (video.created_at ? new Date(video.created_at).toLocaleDateString() : "—")],
+                [lang === "uz" ? "Ko'rilgan" : lang === "ru" ? "Просмотры" : "Views", (video.views || 0).toLocaleString() + (lang === "uz" ? " marta" : "")],
               ].map(([k, v], i) => (
                 <tr key={i} style={{ background: i % 2 === 0 ? COLORS.tableStripe : COLORS.white }}>
                   <td style={{ padding: "12px 20px", fontWeight: 700, color: COLORS.headerMain, fontSize: 15, width: 220, borderRight: `1px solid ${COLORS.borderBlue}` }}>{k}</td>
@@ -298,7 +312,7 @@ function VideoModal({ video, onClose, onEnroll, lang, t }) {
           <div style={{ display: "flex", gap: 16, justifyContent: "flex-end" }}>
             <button onClick={onClose} style={{ background: COLORS.white, border: `2px solid ${COLORS.borderBlue}`, color: COLORS.textMuted, borderRadius: 4, padding: "12px 32px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>{lang === "uz" ? "Yopish" : lang === "ru" ? "Закрыть" : "Close"}</button>
             {video.enrolled
-              ? <button style={{ background: "#2e7d32", color: "#fff", border: "none", borderRadius: 4, padding: "12px 40px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(46,125,50,0.3)" }}>▶ {lang === "uz" ? "Davom ettirish" : lang === "ru" ? "Продолжить" : "Continue"}</button>
+              ? <button style={{ background: "#2e7d32", color: "#fff", border: "none", borderRadius: 4, padding: "12px 40px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(46,125,50,0.3)" }}> {lang === "uz" ? "Davom ettirish" : lang === "ru" ? "Продолжить" : "Continue"}</button>
               : <button onClick={() => { onEnroll(video.id); onClose(); }} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "12px 40px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(30,77,140,0.3)" }}>{t("register")}</button>}
           </div>
         </div>
@@ -349,17 +363,17 @@ function AIModal({ onClose, lang, t }) {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
       <div style={{ background: COLORS.white, border: `2px solid ${COLORS.headerMain}`, borderRadius: 12, width: "min(560px, 95vw)", height: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 24px 64px rgba(0,0,0,0.2)" }}>
         <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontWeight: 800, fontSize: 16 }}>🤖 {t("virtual_assistant")}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 24, cursor: "pointer" }}>✕</button>
+          <span style={{ fontWeight: 800, fontSize: 16 }}> {t("virtual_assistant")}</span>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 24, cursor: "pointer" }}></button>
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
           {messages.map((m, i) => (
             <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
-              {m.role === "assistant" && <span style={{ fontSize: 24, marginRight: 12, alignSelf: "flex-end" }}>🏛️</span>}
+              {m.role === "assistant" && <span style={{ fontSize: 24, marginRight: 12, alignSelf: "flex-end" }}>️</span>}
               <div style={{ maxWidth: "85%", background: m.role === "user" ? COLORS.headerMain : COLORS.lightBlue, color: m.role === "user" ? "#fff" : COLORS.text, border: m.role === "user" ? "none" : `1px solid ${COLORS.borderBlue}`, borderRadius: 8, padding: "14px 20px", fontSize: 15, lineHeight: 1.6, fontWeight: 500 }}>{m.text}</div>
             </div>
           ))}
-          {loading && <div style={{ display: "flex" }}><span style={{ fontSize: 24, marginRight: 12 }}>🏛️</span><div style={{ background: COLORS.lightBlue, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 8, padding: "14px 20px", fontSize: 15, color: COLORS.textMuted, fontWeight: 500 }}>{lang === "uz" ? "Javob tayyorlanmoqda..." : "Thinking..."}</div></div>}
+          {loading && <div style={{ display: "flex" }}><span style={{ fontSize: 24, marginRight: 12 }}>️</span><div style={{ background: COLORS.lightBlue, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 8, padding: "14px 20px", fontSize: 15, color: COLORS.textMuted, fontWeight: 500 }}>{lang === "uz" ? "Javob tayyorlanmoqda..." : "Thinking..."}</div></div>}
           <div ref={endRef} />
         </div>
         <div style={{ borderTop: `1px solid ${COLORS.borderBlue}`, padding: 20, display: "flex", gap: 12, background: COLORS.tableStripe }}>
@@ -472,7 +486,7 @@ export default function App() {
     { id: "my", label: t("nav_my_room") },
     { id: "about", label: t("nav_about") },
     { id: "contact", label: t("nav_contact") },
-    ...(currentUser?.role === "admin" ? [{ id: "admin", label: "⚙️ Admin" }] : []),
+    ...(currentUser?.role === "admin" ? [{ id: "admin", label: "️ Admin" }] : []),
   ];
 
   // Use DB subjects for catalog categories
@@ -491,10 +505,10 @@ export default function App() {
         <div style={{ width: "100%", padding: "0 40px", display: "flex", justifyContent: "space-between", alignItems: "center", boxSizing: "border-box" }}>
           <span style={{ fontWeight: 600 }}>{t("title")}</span>
           <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-            <span style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }} onClick={() => setShowAI(true)}>🤖 {t("virtual_assistant")}</span>
+            <span style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }} onClick={() => setShowAI(true)}> {t("virtual_assistant")}</span>
             {currentUser ? (
               <>
-                <span style={{ fontWeight: 700, color: "#fff" }}>👤 {currentUser.fullName || currentUser.full_name}</span>
+                <span style={{ fontWeight: 700, color: "#fff" }}> {currentUser.fullName || currentUser.full_name}</span>
                 {currentUser.role === "admin" && <span style={{ background: "#d4a017", color: "#000", borderRadius: 3, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>ADMIN</span>}
                 <span style={{ cursor: "pointer", color: "#ffcdd2" }} onClick={logout}>Chiqish</span>
               </>
@@ -535,7 +549,7 @@ export default function App() {
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("search_placeholder")} style={{ flex: 1, border: "none", padding: "0 16px", fontSize: 15, outline: "none" }} />
               <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.accent, color: "#fff", border: "none", padding: "0 20px", cursor: "pointer", fontSize: 18, transition: "background 0.2s" }}
                 onMouseEnter={e => e.currentTarget.style.background = COLORS.accentLight}
-                onMouseLeave={e => e.currentTarget.style.background = COLORS.accent}>🔍</button>
+                onMouseLeave={e => e.currentTarget.style.background = COLORS.accent}></button>
             </div>
           </div>
         </div>
@@ -557,7 +571,7 @@ export default function App() {
       {/* BREADCRUMB */}
       <div style={{ background: COLORS.lightBlue, borderBottom: `1px solid ${COLORS.borderBlue}`, padding: "10px 0" }}>
         <div style={{ width: "100%", padding: "0 40px", fontSize: 14, color: COLORS.textMuted, boxSizing: "border-box", fontWeight: 500 }}>
-          🏠 <span style={{ color: COLORS.headerMain, cursor: "pointer" }} onClick={() => setActiveTab("main")}>{t("nav_home")}</span>
+           <span style={{ color: COLORS.headerMain, cursor: "pointer" }} onClick={() => setActiveTab("main")}>{t("nav_home")}</span>
           {activeTab !== "main" && <> <span style={{ margin: "0 8px", opacity: 0.5 }}>/</span> <span style={{ color: COLORS.headerMain }}>{NAV.find(n => n.id === activeTab)?.label}</span></>}
         </div>
       </div>
@@ -571,24 +585,24 @@ export default function App() {
             <div>
               {/* Banner */}
               <div style={{ background: `linear-gradient(135deg, ${COLORS.headerMain}, ${COLORS.navBg})`, color: "#fff", borderRadius: 8, padding: "48px 56px", marginBottom: 32, border: `1px solid ${COLORS.borderBlue}`, position: "relative", overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}>
-                <div style={{ position: "absolute", right: -30, top: -30, fontSize: 180, opacity: 0.1 }}>🎬</div>
+                <div style={{ position: "absolute", right: -30, top: -30, fontSize: 180, opacity: 0.1 }}></div>
                 <h2 style={{ fontSize: 42, fontWeight: 800, margin: "0 0 20px", lineHeight: 1.2 }}>{t("welcome")}</h2>
                 <p style={{ color: "#b8d0f0", fontSize: 18, lineHeight: 1.7, marginBottom: 32, maxWidth: "800px" }}>{t("banner_text")}</p>
                 <div style={{ display: "flex", gap: 16 }}>
                   <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.accent, color: "#fff", border: "none", borderRadius: 4, padding: "14px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}
                     onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(200,16,46,0.3)"; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>{t("view_catalog")}</button>
-                  <button onClick={() => setShowAI(true)} style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "2px solid rgba(255,255,255,0.3)", borderRadius: 4, padding: "14px 28px", fontSize: 18, cursor: "pointer", fontWeight: 600 }}>🤖 {t("ask_help")}</button>
+                  <button onClick={() => setShowAI(true)} style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "2px solid rgba(255,255,255,0.3)", borderRadius: 4, padding: "14px 28px", fontSize: 18, cursor: "pointer", fontWeight: 600 }}> {t("ask_help")}</button>
                 </div>
               </div>
 
               {/* Stats */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, marginBottom: 32 }}>
                 {[
-                  { key: "stat_videos", value: "1,250+", icon: "🎬" },
-                  { key: "stat_users", value: "48,300+", icon: "👥" },
+                  { key: "stat_videos", value: "1,250+", icon: "" },
+                  { key: "stat_users", value: "48,300+", icon: "" },
                   { key: "stat_hours", value: "3,600+", icon: "⏱" },
-                  { key: "stat_inst", value: "120+", icon: "🏛️" },
+                  { key: "stat_inst", value: "120+", icon: "️" },
                 ].map((s, i) => (
                   <div key={i} style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderTop: `4px solid ${COLORS.headerMain}`, borderRadius: 8, padding: "24px 20px", textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
                     <div style={{ fontSize: 36, marginBottom: 12 }}>{s.icon}</div>
@@ -607,7 +621,7 @@ export default function App() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ background: COLORS.lightBlue, borderBottom: `2px solid ${COLORS.borderBlue}` }}>
-                      {["#", t("search_title"), t("search_cat"), t("search_author"), t("date") || "Sana"].map((h, i) => (
+                      {["#", "Video", t("search_title"), t("search_cat"), t("search_author"), t("date") || "Sana"].map((h, i) => (
                         <th key={i} style={{ padding: "14px 24px", textAlign: "left", fontSize: 14, color: COLORS.headerMain, fontWeight: 700 }}>{h}</th>
                       ))}
                     </tr>
@@ -619,6 +633,7 @@ export default function App() {
                         onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
                         onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? COLORS.white : COLORS.tableStripe}>
                         <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted }}>{i + 1}</td>
+                        <td style={{ padding: "10px 14px", width: 140 }}><VideoPreviewCell video={v} /></td>
                         <td style={{ padding: "14px 24px", fontSize: 16, color: COLORS.headerMain, fontWeight: 700 }}>{v.title}</td>
                         <td style={{ padding: "14px 24px" }}><CategoryTag cat={v.category || (v.subject_id && CATEGORY_LABEL(String(v.subject_id))) || "—"} /></td>
                         <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted, fontWeight: 500 }}>{v.author}</td>
@@ -671,7 +686,7 @@ export default function App() {
 
               {/* AI assistant promo */}
               <div style={{ background: COLORS.lightBlue, border: `3px solid ${COLORS.borderBlue}`, borderRadius: 8, padding: "24px 20px", textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
-                <div style={{ fontSize: 48, marginBottom: 12 }}>🤖</div>
+                <div style={{ fontSize: 48, marginBottom: 12 }}></div>
                 <div style={{ fontWeight: 800, color: COLORS.headerMain, marginBottom: 10, fontSize: 18 }}>{t("ai_promo_title")}</div>
                 <div style={{ fontSize: 14, color: COLORS.textMuted, lineHeight: 1.6, marginBottom: 20, fontWeight: 500 }}>{t("ai_promo_text")}</div>
                 <button onClick={() => setShowAI(true)} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "12px 24px", fontSize: 15, cursor: "pointer", width: "100%", fontWeight: 700, boxShadow: "0 4px 12px rgba(30,77,140,0.2)" }}>{t("apply")}</button>
@@ -685,7 +700,7 @@ export default function App() {
           <div>
             <div style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
               <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", fontSize: 18, fontWeight: 700 }}>
-                🎬 {lang === "uz" ? "Video darsliklar katalogi" : lang === "ru" ? "Каталог видеоуроков" : "Video Lessons Catalog"} — {filtered.length} {lang === "uz" ? "ta material topildi" : lang === "ru" ? "материалов найдено" : "items found"}
+                 {lang === "uz" ? "Video darsliklar katalogi" : lang === "ru" ? "Каталог видеоуроков" : "Video Lessons Catalog"} — {filtered.length} {lang === "uz" ? "ta material topildi" : lang === "ru" ? "материалов найдено" : "items found"}
               </div>
 
               {/* Filters */}
@@ -706,7 +721,7 @@ export default function App() {
                 </div>
                 <div style={{ flex: 1, display: "flex", gap: 12, maxWidth: "100%" }}>
                   <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("search_placeholder")} style={{ flex: 1, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 4, padding: "8px 16px", fontSize: 15, outline: "none" }} />
-                  <button style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "8px 24px", cursor: "pointer", fontSize: 16, fontWeight: 600 }}>🔍</button>
+                  <button style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "8px 24px", cursor: "pointer", fontSize: 16, fontWeight: 600 }}></button>
                 </div>
               </div>
 
@@ -722,8 +737,8 @@ export default function App() {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr style={{ background: COLORS.tableStripe, borderBottom: `2px solid ${COLORS.borderBlue}` }}>
-                      {["#", lang === "uz" ? "Sarlavha / Muallif" : lang === "ru" ? "Заголовок / Автор" : "Title / Author", t("search_cat"), lang === "uz" ? "Daraja" : lang === "ru" ? "Уровень" : "Level", lang === "uz" ? "Davomiyligi" : lang === "ru" ? "Длительность" : "Duration", lang === "uz" ? "Ko'rishlar" : lang === "ru" ? "Просмотры" : "Views", lang === "uz" ? "Sana" : lang === "ru" ? "Дата" : "Date", lang === "uz" ? "Amal" : lang === "ru" ? "Действие" : "Action"].map((h, i) => (
-                        <th key={i} style={{ padding: "16px 24px", textAlign: i === 0 || i > 2 ? "center" : "left", fontSize: 14, color: COLORS.headerMain, fontWeight: 700, whiteSpace: "nowrap", borderRight: `1px solid ${COLORS.borderBlue}` }}>{h}</th>
+                      {["#", "Video", lang === "uz" ? "Sarlavha / Muallif" : lang === "ru" ? "Заголовок / Автор" : "Title / Author", t("search_cat"), lang === "uz" ? "Daraja" : lang === "ru" ? "Уровень" : "Level", lang === "uz" ? "Davomiyligi" : lang === "ru" ? "Длительность" : "Duration", lang === "uz" ? "Ko'rishlar" : lang === "ru" ? "Просмотры" : "Views", lang === "uz" ? "Sana" : lang === "ru" ? "Дата" : "Date", lang === "uz" ? "Amal" : lang === "ru" ? "Действие" : "Action"].map((h, i) => (
+                        <th key={i} style={{ padding: "16px 24px", textAlign: i === 0 || i > 3 ? "center" : "left", fontSize: 14, color: COLORS.headerMain, fontWeight: 700, whiteSpace: "nowrap", borderRight: `1px solid ${COLORS.borderBlue}` }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -734,6 +749,7 @@ export default function App() {
                         onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
                         onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? COLORS.white : COLORS.tableStripe}>
                         <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted, textAlign: "center" }}>{i + 1}</td>
+                        <td style={{ padding: "10px 14px", width: 140 }}><VideoPreviewCell video={v} /></td>
                         <td style={{ padding: "14px 24px" }}>
                           <div style={{ fontWeight: 700, color: COLORS.headerMain, fontSize: 16 }}>{v.title}</div>
                           <div style={{ fontSize: 14, color: COLORS.textMuted }}>{v.author}</div>
@@ -747,7 +763,7 @@ export default function App() {
                           <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
                             <button onClick={(e) => { e.stopPropagation(); handleVideoClick(v); }} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{lang === "uz" ? "Ko'rish" : lang === "ru" ? "Смотреть" : "View"}</button>
                             {currentUser?.role === "admin" && (
-                              <button onClick={(e) => { e.stopPropagation(); deleteVideo(v.id); }} style={{ background: COLORS.accent, color: "#fff", border: "none", borderRadius: 4, padding: "8px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>🗑️</button>
+                              <button onClick={(e) => { e.stopPropagation(); deleteVideo(v.id); }} style={{ background: COLORS.accent, color: "#fff", border: "none", borderRadius: 4, padding: "8px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>️</button>
                             )}
                           </div>
                         </td>
@@ -757,7 +773,7 @@ export default function App() {
                 </table>
                 {filtered.length === 0 && (
                   <div style={{ padding: 64, textAlign: "center", color: COLORS.textMuted }}>
-                    <div style={{ fontSize: 64, marginBottom: 16 }}>🔍</div>
+                    <div style={{ fontSize: 64, marginBottom: 16 }}></div>
                     <div style={{ fontSize: 20, fontWeight: 600 }}>{lang === "uz" ? "Qidiruv natijasi topilmadi" : lang === "ru" ? "Результаты не найдены" : "No results found"}</div>
                   </div>
                 )}
@@ -770,10 +786,10 @@ export default function App() {
         {activeTab === "my" && (
           <div>
             <div style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
-              <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", fontSize: 18, fontWeight: 700 }}>📖 {t("nav_my_room")}</div>
+              <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", fontSize: 18, fontWeight: 700 }}> {t("nav_my_room")}</div>
               {enrolled.length === 0 ? (
                 <div style={{ padding: 80, textAlign: "center" }}>
-                  <div style={{ fontSize: 80, marginBottom: 24 }}>📚</div>
+                  <div style={{ fontSize: 80, marginBottom: 24 }}></div>
                   <div style={{ color: COLORS.headerMain, fontSize: 24, fontWeight: 800, marginBottom: 12 }}>{lang === "uz" ? "Siz hali hech qaysi kursga yozilmagansiz" : lang === "ru" ? "Вы еще не записались ни на один курс" : "You haven't enrolled in any courses yet"}</div>
                   <div style={{ color: COLORS.textMuted, fontSize: 16, marginBottom: 32 }}>{lang === "uz" ? "Katalogga o'tib kurs tanlang" : lang === "ru" ? "Перейдите в каталог, чтобы выбрать курс" : "Go to the catalog to choose a course"}</div>
                   <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "14px 40px", fontSize: 18, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(30,77,140,0.2)" }}>{lang === "uz" ? "Katalogga o'tish" : lang === "ru" ? "Перейти в каталог" : "Go to Catalog"}</button>
@@ -793,7 +809,7 @@ export default function App() {
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                       <tr style={{ background: COLORS.tableStripe, borderBottom: `2px solid ${COLORS.borderBlue}` }}>
-                        {["#", lang === "uz" ? "Kurs nomi" : lang === "ru" ? "Название курса" : "Course Name", t("search_cat"), lang === "uz" ? "Darslar" : lang === "ru" ? "Уроки" : "Lessons", lang === "uz" ? "Davom (%)" : lang === "ru" ? "Прогресс (%)" : "Progress (%)"].map((h, i) => (
+                        {["#", "Video", lang === "uz" ? "Kurs nomi" : lang === "ru" ? "Название курса" : "Course Name", t("search_cat"), lang === "uz" ? "Darslar" : lang === "ru" ? "Уроки" : "Lessons", lang === "uz" ? "Davom (%)" : lang === "ru" ? "Прогресс (%)" : "Progress (%)"].map((h, i) => (
                           <th key={i} style={{ padding: "14px 24px", textAlign: "left", fontSize: 14, color: COLORS.headerMain, fontWeight: 700 }}>{h}</th>
                         ))}
                       </tr>
@@ -804,6 +820,7 @@ export default function App() {
                           onMouseEnter={e => e.currentTarget.style.background = "#eff6ff"}
                           onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? COLORS.white : COLORS.tableStripe}>
                           <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted }}>{i + 1}</td>
+                          <td style={{ padding: "10px 14px", width: 140 }}><VideoPreviewCell video={v} /></td>
                           <td style={{ padding: "14px 24px" }}>
                             <div style={{ fontWeight: 700, color: COLORS.headerMain, fontSize: 16 }}>{v.title}</div>
                             <div style={{ fontSize: 14, color: COLORS.textMuted }}>{v.author}</div>
@@ -851,14 +868,14 @@ export default function App() {
             </div>
             <div>
               <div style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 8, overflow: "hidden", marginBottom: 24, boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
-                <div style={{ background: COLORS.accent, color: "#fff", padding: "14px 20px", fontSize: 16, fontWeight: 700 }}>📍 {lang === "uz" ? "Aloqa ma'lumotlari" : lang === "ru" ? "Контактная информация" : "Contact Information"}</div>
+                <div style={{ background: COLORS.accent, color: "#fff", padding: "14px 20px", fontSize: 16, fontWeight: 700 }}> {lang === "uz" ? "Aloqa ma'lumotlari" : lang === "ru" ? "Контактная информация" : "Contact Information"}</div>
                 <div style={{ padding: 20 }}>
                   {[
-                    ["📞", lang === "uz" ? "Telefon" : lang === "ru" ? "Телефон" : "Phone", "(+99871) 232-83-94"],
-                    ["📧", "Email", "video@natlib.uz"],
-                    ["📍", lang === "uz" ? "Manzil" : lang === "ru" ? "Адрес" : "Address", lang === "uz" ? "Toshkent, Navoiy ko'chasi, 1" : "Ташкент, ул. Навои, 1"],
-                    ["🕐", lang === "uz" ? "Ish vaqti" : lang === "ru" ? "Рабочее время" : "Work Hours", "08:00 – 18:00"],
-                    ["🌐", "Web", "video.natlib.uz"]
+                    ["", lang === "uz" ? "Telefon" : lang === "ru" ? "Телефон" : "Phone", "(+99871) 232-83-94"],
+                    ["", "Email", "video@natlib.uz"],
+                    ["", lang === "uz" ? "Manzil" : lang === "ru" ? "Адрес" : "Address", lang === "uz" ? "Toshkent, Navoiy ko'chasi, 1" : "Ташкент, ул. Навои, 1"],
+                    ["", lang === "uz" ? "Ish vaqti" : lang === "ru" ? "Рабочее время" : "Work Hours", "08:00 – 18:00"],
+                    ["", "Web", "video.natlib.uz"]
                   ].map(([icon, k, v]) => (
                     <div key={k} style={{ display: "flex", gap: 14, marginBottom: 16, fontSize: 14 }}>
                       <span style={{ fontSize: 20 }}>{icon}</span>
@@ -880,7 +897,7 @@ export default function App() {
         {activeTab === "contact" && (
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
             <div style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.08)" }}>
-              <div style={{ background: COLORS.headerMain, color: "#fff", padding: "20px 32px", fontSize: 20, fontWeight: 700 }}>✉️ {lang === "uz" ? "Murojaat Shakli" : lang === "ru" ? "Форма обращения" : "Contact Form"}</div>
+              <div style={{ background: COLORS.headerMain, color: "#fff", padding: "20px 32px", fontSize: 20, fontWeight: 700 }}>️ {lang === "uz" ? "Murojaat Shakli" : lang === "ru" ? "Форма обращения" : "Contact Form"}</div>
               <div style={{ padding: 40 }}>
                 {[
                   [lang === "uz" ? "Ism Familiya" : lang === "ru" ? "Имя Фамилия" : "Full Name", "text", lang === "uz" ? "To'liq ismingiz" : "Ваше полное имя"],
@@ -934,8 +951,8 @@ export default function App() {
             </div>
             <p style={{ fontSize: 14, color: "#7a9cc8", lineHeight: 1.7, margin: 0, maxWidth: "400px" }}>{t("footer_text")}</p>
             <div style={{ marginTop: 24, fontSize: 14, color: "#7a9cc8" }}>
-              <div style={{ marginBottom: 6 }}>📞 (+99871) 232-83-94</div>
-              <div>📧 video@kutubxona.uz</div>
+              <div style={{ marginBottom: 6 }}> (+99871) 232-83-94</div>
+              <div> video@kutubxona.uz</div>
             </div>
           </div>
           <div>
@@ -958,14 +975,14 @@ export default function App() {
               <div>{lang === "uz" ? "Yakshanba" : "Воскресенье"}: {lang === "uz" ? "Dam olish kuni" : "Выходной"}</div>
             </div>
             <div style={{ marginTop: 24, display: "flex", gap: 16 }}>
-              {["📘", "🐦", "📸", "✈️", "▶️"].map((icon, i) => (
+              {["", "", "", "️", "️"].map((icon, i) => (
                 <span key={i} style={{ fontSize: 24, cursor: "pointer", opacity: 0.6, transition: "opacity 0.2s" }} onMouseEnter={e => e.currentTarget.style.opacity = "1"} onMouseLeave={e => e.currentTarget.style.opacity = "0.6"}>{icon}</span>
               ))}
             </div>
           </div>
         </div>
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", padding: "20px 40px", textAlign: "center", fontSize: 13, color: "#7a9cc8", fontWeight: 500 }}>
-          © 2026 {t("title")}. {t("footer_rights")}
+           2026 {t("title")}. {t("footer_rights")}
         </div>
       </footer>
 
@@ -984,7 +1001,7 @@ export default function App() {
       {!showAI && (
         <button onClick={() => setShowAI(true)} style={{ position: "fixed", bottom: 32, right: 32, background: COLORS.headerMain, color: "#fff", border: `3px solid ${COLORS.gold}`, borderRadius: "50%", width: 64, height: 64, fontSize: 32, cursor: "pointer", zIndex: 500, boxShadow: "0 12px 32px rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)" }}
           onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.1) rotate(5deg)"; e.currentTarget.style.boxShadow = "0 16px 40px rgba(0,0,0,0.4)"; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = "scale(1) rotate(0)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.3)"; }}>🤖</button>
+          onMouseLeave={e => { e.currentTarget.style.transform = "scale(1) rotate(0)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.3)"; }}></button>
       )}
     </div>
   );

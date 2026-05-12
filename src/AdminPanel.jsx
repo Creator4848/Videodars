@@ -13,8 +13,15 @@ function extractYtId(url) {
     return m ? m[1] : url;
 }
 
-function AddVideoModal({ subjects, onClose, onSave }) {
-    const [form, setForm] = useState({ title: "", subject_id: "", author: "", youtubeUrl: "", level: "Boshlang'ich", description: "" });
+function AddEditVideoModal({ subjects, videoToEdit, onClose, onSave }) {
+    const [form, setForm] = useState({ 
+        title: videoToEdit?.title || "", 
+        subject_id: videoToEdit?.subject_id || "", 
+        author: videoToEdit?.author || "", 
+        youtubeUrl: videoToEdit?.youtube_id ? `https://youtu.be/${videoToEdit.youtube_id}` : "", 
+        level: videoToEdit?.level || "Boshlang'ich", 
+        description: videoToEdit?.description || "" 
+    });
     const [errors, setErrors] = useState({});
     const [saving, setSaving] = useState(false);
     const upd = (k, v) => setForm(p => ({ ...p, [k]: v }));
@@ -27,10 +34,12 @@ function AddVideoModal({ subjects, onClose, onSave }) {
         if (Object.keys(errs).length) { setErrors(errs); return; }
         setSaving(true);
         try {
-            const r = await fetch("/api/videos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+            const method = videoToEdit ? "PUT" : "POST";
+            const body = videoToEdit ? { ...form, id: videoToEdit.id } : form;
+            const r = await fetch("/api/videos", { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
             const data = await r.json();
             if (!r.ok) { setErrors({ submit: data.error }); return; }
-            onSave(data);
+            onSave(data, !!videoToEdit);
         } catch { setErrors({ submit: "Tarmoq xatosi" }); }
         finally { setSaving(false); }
     }
@@ -43,7 +52,7 @@ function AddVideoModal({ subjects, onClose, onSave }) {
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(3px)" }}>
             <div style={{ background: C.white, borderRadius: 10, width: "min(640px,98vw)", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 24px 64px rgba(0,0,0,0.3)", border: `2px solid ${C.headerMain}` }}>
                 <div style={{ background: C.headerMain, color: "#fff", padding: "14px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: 800, fontSize: 17 }}>🎬 Yangi Video Qo'shish</span>
+                    <span style={{ fontWeight: 800, fontSize: 17 }}>{videoToEdit ? "Videoni Tahrirlash" : "Yangi Video Qo'shish"}</span>
                     <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22, cursor: "pointer" }}>✕</button>
                 </div>
                 <form onSubmit={submit} style={{ padding: 24, display: "grid", gap: 16 }}>
@@ -85,11 +94,11 @@ function AddVideoModal({ subjects, onClose, onSave }) {
                         <label style={lbl}>Tavsif</label>
                         <textarea rows={3} value={form.description} onChange={e => upd("description", e.target.value)} placeholder="Video dars haqida qisqacha ma'lumot..." style={{ ...inp, resize: "vertical" }} />
                     </div>
-                    {errors.submit && <div style={{ background: "#ffebee", border: `1px solid #ef9a9a`, borderRadius: 6, padding: "10px 14px", color: "#c62828", fontSize: 14, fontWeight: 600 }}>⚠️ {errors.submit}</div>}
+                    {errors.submit && <div style={{ background: "#ffebee", border: `1px solid #ef9a9a`, borderRadius: 6, padding: "10px 14px", color: "#c62828", fontSize: 14, fontWeight: 600 }}>{errors.submit}</div>}
                     <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
                         <button type="button" onClick={onClose} style={{ background: C.white, border: `2px solid ${C.borderBlue}`, color: C.textMuted, borderRadius: 5, padding: "10px 26px", fontSize: 15, cursor: "pointer", fontWeight: 600 }}>Bekor qilish</button>
                         <button type="submit" disabled={saving} style={{ background: saving ? "#90a4ae" : C.headerMain, color: "#fff", border: "none", borderRadius: 5, padding: "10px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
-                            {saving ? "Saqlanmoqda..." : "✅ Saqlash"}
+                            {saving ? "Saqlanmoqda..." : "Saqlash"}
                         </button>
                     </div>
                 </form>
@@ -103,22 +112,27 @@ export default function AdminPanel({ onLogout, onRefresh }) {
     const [subjects, setSubjects] = useState([]);
     const [videos, setVideos] = useState([]);
     const [users, setUsers] = useState([]);
-    const [selSubject, setSelSubject] = useState(null);
+    const [selSubject, setSelSubject] = useState("all");
     const [newSubjectName, setNewSubjectName] = useState("");
     const [showAddVideo, setShowAddVideo] = useState(false);
+    const [editingVideo, setEditingVideo] = useState(null);
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState("");
 
     useEffect(() => { loadSubjects(); }, []);
     useEffect(() => { if (subTab === "users") loadUsers(); }, [subTab]);
-    useEffect(() => { if (selSubject) loadVideos(selSubject.id); }, [selSubject]);
+    useEffect(() => { loadVideos(selSubject); }, [selSubject]);
 
     async function loadSubjects() {
-        try { const d = await (await fetch("/api/subjects")).json(); setSubjects(d); if (d.length > 0 && !selSubject) setSelSubject(d[0]); } catch { }
+        try { const d = await (await fetch("/api/subjects")).json(); setSubjects(d); } catch { }
     }
     async function loadVideos(sid) {
         setLoading(true);
-        try { const d = await (await fetch(`/api/videos?subject_id=${sid}`)).json(); setVideos(d); } catch { } finally { setLoading(false); }
+        try { 
+            const url = sid === "all" ? "/api/videos" : `/api/videos?subject_id=${sid}`;
+            const d = await (await fetch(url)).json(); 
+            setVideos(d); 
+        } catch { } finally { setLoading(false); }
     }
     async function loadUsers() {
         try { const d = await (await fetch("/api/users")).json(); setUsers(d); } catch { }
@@ -143,7 +157,7 @@ export default function AdminPanel({ onLogout, onRefresh }) {
         if (r.ok) {
             const updated = subjects.filter(s => s.id !== id);
             setSubjects(updated);
-            if (selSubject?.id === id) { setSelSubject(updated[0] || null); setVideos([]); }
+            if (selSubject === id) { setSelSubject("all"); }
             flash("Fan o'chirildi");
             if (onRefresh) onRefresh();
         }
@@ -181,24 +195,24 @@ export default function AdminPanel({ onLogout, onRefresh }) {
             {/* Admin sub-tabs */}
             <div style={{ background: C.white, border: `1px solid ${C.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.07)", marginBottom: 24 }}>
                 <div style={{ background: `linear-gradient(135deg,${C.headerMain},#0d3570)`, color: "#fff", padding: "18px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: 900, fontSize: 20 }}>⚙️ Admin Panel</span>
-                    <button onClick={onLogout} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", borderRadius: 6, padding: "8px 18px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>🚪 Chiqish</button>
+                    <span style={{ fontWeight: 900, fontSize: 20 }}>Admin Panel</span>
+                    <button onClick={onLogout} style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", borderRadius: 6, padding: "8px 18px", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Chiqish</button>
                 </div>
                 <div style={{ display: "flex", borderBottom: `2px solid ${C.borderBlue}` }}>
-                    {tabBtn("videos", "🎬 Videodarslar")}
-                    {tabBtn("users", "👥 Foydalanuvchilar")}
+                    {tabBtn("videos", "Videodarslar")}
+                    {tabBtn("users", "Foydalanuvchilar")}
                 </div>
             </div>
 
             {/* ... rest of the component ... */}
-            {msg && <div style={{ background: C.greenLight, border: `1px solid #a5d6a7`, borderRadius: 6, padding: "10px 18px", color: C.green, fontWeight: 700, marginBottom: 16 }}>✅ {msg}</div>}
+            {msg && <div style={{ background: C.greenLight, border: `1px solid #a5d6a7`, borderRadius: 6, padding: "10px 18px", color: C.green, fontWeight: 700, marginBottom: 16 }}>{msg}</div>}
 
             {/* ===== VIDEOS TAB ===== */}
             {subTab === "videos" && (
                 <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, alignItems: "start" }}>
                     {/* Subjects sidebar */}
                     <div style={{ background: C.white, border: `1px solid ${C.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-                        {hdr("📚 Fanlar")}
+                        {hdr("Fanlar")}
                         <div style={{ padding: 14, borderBottom: `1px solid ${C.borderBlue}` }}>
                             <div style={{ display: "flex", gap: 8 }}>
                                 <input value={newSubjectName} onChange={e => setNewSubjectName(e.target.value)}
@@ -208,13 +222,16 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                             </div>
                         </div>
                         <div>
-                            {subjects.length === 0 ? (
-                                <div style={{ padding: 24, textAlign: "center", color: C.textMuted, fontSize: 14 }}>Fan qo'shing</div>
-                            ) : subjects.map(s => (
-                                <div key={s.id} onClick={() => setSelSubject(s)} style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.borderBlue}`, cursor: "pointer", background: selSubject?.id === s.id ? C.lightBlue : C.white, borderLeft: selSubject?.id === s.id ? `4px solid ${C.headerMain}` : "4px solid transparent" }}
-                                    onMouseEnter={e => { if (selSubject?.id !== s.id) e.currentTarget.style.background = C.tableStripe; }}
-                                    onMouseLeave={e => { if (selSubject?.id !== s.id) e.currentTarget.style.background = C.white; }}>
-                                    <span style={{ fontWeight: selSubject?.id === s.id ? 700 : 500, fontSize: 14, color: C.text }}>{s.name}</span>
+                            <div onClick={() => setSelSubject("all")} style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.borderBlue}`, cursor: "pointer", background: selSubject === "all" ? C.lightBlue : C.white, borderLeft: selSubject === "all" ? `4px solid ${C.headerMain}` : "4px solid transparent" }}
+                                onMouseEnter={e => { if (selSubject !== "all") e.currentTarget.style.background = C.tableStripe; }}
+                                onMouseLeave={e => { if (selSubject !== "all") e.currentTarget.style.background = C.white; }}>
+                                <span style={{ fontWeight: selSubject === "all" ? 700 : 500, fontSize: 14, color: C.text }}>Barcha videolar</span>
+                            </div>
+                            {subjects.map(s => (
+                                <div key={s.id} onClick={() => setSelSubject(s.id)} style={{ padding: "12px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.borderBlue}`, cursor: "pointer", background: selSubject === s.id ? C.lightBlue : C.white, borderLeft: selSubject === s.id ? `4px solid ${C.headerMain}` : "4px solid transparent" }}
+                                    onMouseEnter={e => { if (selSubject !== s.id) e.currentTarget.style.background = C.tableStripe; }}
+                                    onMouseLeave={e => { if (selSubject !== s.id) e.currentTarget.style.background = C.white; }}>
+                                    <span style={{ fontWeight: selSubject === s.id ? 700 : 500, fontSize: 14, color: C.text }}>{s.name}</span>
                                     <button onClick={ev => { ev.stopPropagation(); deleteSubject(s.id); }} style={{ background: "#ffebee", border: "none", borderRadius: 4, width: 26, height: 26, cursor: "pointer", color: C.accent, fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
                                 </div>
                             ))}
@@ -224,19 +241,13 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                     {/* Videos panel */}
                     <div style={{ background: C.white, border: `1px solid ${C.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
                         <div style={{ background: C.headerMain, color: "#fff", padding: "14px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span style={{ fontWeight: 700, fontSize: 17 }}>🎬 {selSubject ? selSubject.name : "Fan tanlang"} — videolar</span>
-                            {selSubject && <button onClick={() => setShowAddVideo(true)} style={{ background: C.accent, color: "#fff", border: "none", borderRadius: 5, padding: "8px 16px", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>+ Video qo'shish</button>}
+                            <span style={{ fontWeight: 700, fontSize: 17 }}>{selSubject === "all" ? "Barcha videolar" : (subjects.find(s => s.id === selSubject)?.name || "Fanlar")}</span>
+                            <button onClick={() => setShowAddVideo(true)} style={{ background: C.accent, color: "#fff", border: "none", borderRadius: 5, padding: "8px 16px", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>+ Video qo'shish</button>
                         </div>
-                        {!selSubject ? (
-                            <div style={{ padding: 64, textAlign: "center", color: C.textMuted }}>
-                                <div style={{ fontSize: 56, marginBottom: 16 }}>📚</div>
-                                <div style={{ fontSize: 18, fontWeight: 600 }}>Chapdan fan tanlang</div>
-                            </div>
-                        ) : loading ? (
+                        {loading ? (
                             <div style={{ padding: 40, textAlign: "center", color: C.textMuted }}>⏳ Yuklanmoqda...</div>
                         ) : subjectVideos.length === 0 ? (
                             <div style={{ padding: 64, textAlign: "center", color: C.textMuted }}>
-                                <div style={{ fontSize: 56, marginBottom: 16 }}>🎬</div>
                                 <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Bu fanda hali videolar yo'q</div>
                                 <button onClick={() => setShowAddVideo(true)} style={{ background: C.headerMain, color: "#fff", border: "none", borderRadius: 5, padding: "10px 24px", cursor: "pointer", fontWeight: 700 }}>+ Birinchi videoni qo'shing</button>
                             </div>
@@ -245,7 +256,7 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                                     <thead>
                                         <tr style={{ background: C.tableStripe, borderBottom: `2px solid ${C.borderBlue}` }}>
-                                            {["#", "Sarlavha", "Muallif", "Daraja", "YouTube", "O'chirish"].map((h, i) => (
+                                            {["#", "Sarlavha", "Muallif", "Fan", "YouTube", "Amallar"].map((h, i) => (
                                                 <th key={i} style={{ padding: "12px 16px", textAlign: "left", fontSize: 13, color: C.headerMain, fontWeight: 700, whiteSpace: "nowrap" }}>{h}</th>
                                             ))}
                                         </tr>
@@ -259,16 +270,19 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                                                     {v.description && <div style={{ fontSize: 12, color: C.textMuted, marginTop: 2 }}>{v.description.slice(0, 60)}{v.description.length > 60 ? "..." : ""}</div>}
                                                 </td>
                                                 <td style={{ padding: "12px 16px", fontSize: 13, color: C.textMuted, whiteSpace: "nowrap" }}>{v.author || "—"}</td>
-                                                <td style={{ padding: "12px 16px" }}>
-                                                    <span style={{ background: v.level === "Boshlang'ich" ? "#e8f5e9" : v.level === "O'rta" ? "#e3f2fd" : "#ffebee", color: v.level === "Boshlang'ich" ? C.green : v.level === "O'rta" ? "#1565c0" : "#c62828", borderRadius: 3, padding: "2px 8px", fontSize: 12, fontWeight: 600 }}>{v.level}</span>
+                                                <td style={{ padding: "12px 16px", fontSize: 13, color: C.textMuted }}>
+                                                    {v.subject_name || (subjects.find(s => s.id === v.subject_id)?.name || "—")}
                                                 </td>
                                                 <td style={{ padding: "12px 16px" }}>
                                                     {v.youtube_id ? (
-                                                        <a href={`https://youtu.be/${v.youtube_id}`} target="_blank" rel="noreferrer" style={{ color: C.headerMain, fontSize: 12, fontWeight: 600 }}>▶ Ko'rish</a>
+                                                        <a href={`https://youtu.be/${v.youtube_id}`} target="_blank" rel="noreferrer" style={{ color: C.headerMain, fontSize: 12, fontWeight: 600 }}>Ko'rish</a>
                                                     ) : <span style={{ color: C.textMuted, fontSize: 12 }}>—</span>}
                                                 </td>
                                                 <td style={{ padding: "12px 16px" }}>
-                                                    <button onClick={() => deleteVideo(v.id)} style={{ background: "#ffebee", border: "1px solid #ef9a9a", borderRadius: 4, padding: "5px 12px", cursor: "pointer", color: "#c62828", fontWeight: 700, fontSize: 13 }}>O'chirish</button>
+                                                    <div style={{ display: "flex", gap: 8 }}>
+                                                        <button onClick={() => setEditingVideo(v)} style={{ background: "#e3f2fd", border: "1px solid #90caf9", borderRadius: 4, padding: "5px 12px", cursor: "pointer", color: "#1565c0", fontWeight: 700, fontSize: 13 }}>Tahrirlash</button>
+                                                        <button onClick={() => deleteVideo(v.id)} style={{ background: "#ffebee", border: "1px solid #ef9a9a", borderRadius: 4, padding: "5px 12px", cursor: "pointer", color: "#c62828", fontWeight: 700, fontSize: 13 }}>O'chirish</button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -285,22 +299,20 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                 <div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 20 }}>
                         {[
-                            ["Jami foydalanuvchilar", users.length, "👥", C.headerMain],
-                            ["Faol foydalanuvchilar", users.filter(u => !u.is_blocked).length, "✅", C.green],
-                            ["Adminlar", users.filter(u => u.role === "admin").length, "🔐", C.accent],
-                        ].map(([label, val, icon, color]) => (
+                            ["Jami foydalanuvchilar", users.length, C.headerMain],
+                            ["Faol foydalanuvchilar", users.filter(u => !u.is_blocked).length, C.green],
+                            ["Adminlar", users.filter(u => u.role === "admin").length, C.accent],
+                        ].map(([label, val, color]) => (
                             <div key={label} style={{ background: C.white, border: `1px solid ${C.borderBlue}`, borderTop: `4px solid ${color}`, borderRadius: 8, padding: "20px 24px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                                <div style={{ fontSize: 32, marginBottom: 8 }}>{icon}</div>
                                 <div style={{ fontSize: 28, fontWeight: 800, color }}>{val}</div>
                                 <div style={{ fontSize: 13, color: C.textMuted, fontWeight: 600, marginTop: 4 }}>{label}</div>
                             </div>
                         ))}
                     </div>
                     <div style={{ background: C.white, border: `1px solid ${C.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-                        {hdr("👥 Ro'yxatdan o'tgan foydalanuvchilar")}
+                        {hdr("Ro'yxatdan o'tgan foydalanuvchilar")}
                         {users.length === 0 ? (
                             <div style={{ padding: 48, textAlign: "center", color: C.textMuted }}>
-                                <div style={{ fontSize: 48, marginBottom: 12 }}>👤</div>
                                 <div style={{ fontSize: 16 }}>Hali foydalanuvchilar yo'q</div>
                             </div>
                         ) : (
@@ -335,7 +347,17 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                     </div>
                 </div>
             )}
-            {showAddVideo && <AddVideoModal subjects={subjects} onClose={() => setShowAddVideo(false)} onSave={v => { setVideos(p => [v, ...p]); setShowAddVideo(false); flash("Video qo'shildi ✓"); if (onRefresh) onRefresh(); }} />}
+            {(showAddVideo || editingVideo) && <AddEditVideoModal subjects={subjects} videoToEdit={editingVideo} onClose={() => { setShowAddVideo(false); setEditingVideo(null); }} onSave={(v, isEdit) => { 
+                if (isEdit) {
+                    setVideos(p => p.map(vd => vd.id === v.id ? v : vd));
+                } else {
+                    setVideos(p => [v, ...p]); 
+                }
+                setShowAddVideo(false); 
+                setEditingVideo(null);
+                flash(isEdit ? "Video tahrirlandi" : "Video qo'shildi"); 
+                if (onRefresh) onRefresh(); 
+            }} />}
         </div>
     );
 }

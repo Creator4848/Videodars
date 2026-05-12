@@ -54,7 +54,7 @@ export default function AuthModal({ onClose, onSuccess, initialTab = "login" }) 
             <div style={{ background: C.white, borderRadius: 12, width: "min(440px,96vw)", boxShadow: "0 24px 64px rgba(0,0,0,0.3)", overflow: "hidden", border: `2px solid ${C.headerMain}` }}>
                 {/* Header */}
                 <div style={{ background: C.headerMain, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: 800, fontSize: 18 }}>🎓 O'quv Videodarslar</span>
+                    <span style={{ fontWeight: 800, fontSize: 18 }}>O'quv Videodarslar</span>
                     <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22, cursor: "pointer" }}>✕</button>
                 </div>
                 {/* Tabs */}
@@ -77,9 +77,9 @@ export default function AuthModal({ onClose, onSuccess, initialTab = "login" }) 
                         <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: C.headerMain, marginBottom: 6 }}>Parol *</label>
                         <input type="password" value={form.password} onChange={e => upd("password", e.target.value)} placeholder="Parolni kiriting" style={inp} required />
                     </div>
-                    {error && <div style={{ background: "#ffebee", border: "1px solid #ef9a9a", borderRadius: 6, padding: "10px 14px", color: "#c62828", fontSize: 14, marginBottom: 16, fontWeight: 600 }}>⚠️ {error}</div>}
+                    {error && <div style={{ background: "#ffebee", border: "1px solid #ef9a9a", borderRadius: 6, padding: "10px 14px", color: "#c62828", fontSize: 14, marginBottom: 16, fontWeight: 600 }}>{error}</div>}
                     <button type="submit" disabled={loading} style={{ width: "100%", background: loading ? "#90a4ae" : C.headerMain, color: "#fff", border: "none", borderRadius: 6, padding: "13px", fontSize: 16, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", transition: "all .2s" }}>
-                        {loading ? "⏳ Kuting..." : tab === "login" ? "🔐 Kirish" : "✅ Ro'yxatdan o'tish"}
+                        {loading ? "Kuting..." : tab === "login" ? "Kirish" : "Ro'yxatdan o'tish"}
                     </button>
                     {tab === "login" && (
                         <p style={{ textAlign: "center", marginTop: 14, fontSize: 13, color: C.textMuted }}>
