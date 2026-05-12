@@ -4,6 +4,8 @@ import AdminPanel from "./AdminPanel";
 
 const COLORS = {
   headerMain: "#1e4d8c",
+  navBg: "#154a8a",
+  navHover: "#0d3570",
   accent: "#5e5088",
   gold: "#d4a017",
   lightBlue: "#e8f0f8",
@@ -601,30 +603,34 @@ export default function App() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32 }}>
             <div>
               {/* Banner */}
-              <div style={{ background: `linear-gradient(135deg, ${COLORS.headerMain}, ${COLORS.navBg})`, color: "#fff", borderRadius: 8, padding: "48px 56px", marginBottom: 32, border: `1px solid ${COLORS.borderBlue}`, position: "relative", overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}>
-                <div style={{ position: "absolute", right: -30, top: -30, fontSize: 180, opacity: 0.1 }}></div>
-                <h2 style={{ fontSize: 42, fontWeight: 800, margin: "0 0 20px", lineHeight: 1.2 }}>{t("welcome")}</h2>
-                <p style={{ color: "#b8d0f0", fontSize: 18, lineHeight: 1.7, marginBottom: 32, maxWidth: "800px" }}>{t("banner_text")}</p>
-                <div style={{ display: "flex", gap: 16 }}>
-                  <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.accent, color: "#fff", border: "none", borderRadius: 4, padding: "14px 32px", fontSize: 18, fontWeight: 700, cursor: "pointer", transition: "all 0.2s" }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(200,16,46,0.3)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>{t("view_catalog")}</button>
-                  <button onClick={() => setShowAI(true)} style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "2px solid rgba(255,255,255,0.3)", borderRadius: 4, padding: "14px 28px", fontSize: 18, cursor: "pointer", fontWeight: 600 }}> {t("ask_help")}</button>
+              <div style={{ background: COLORS.white, border: `2px solid ${COLORS.borderBlue}`, borderRadius: 12, padding: "56px", marginBottom: 32, position: "relative", overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,0.08)" }}>
+                <div style={{ position: "absolute", right: -30, top: -30, fontSize: 180, opacity: 0.03, color: COLORS.headerMain }}></div>
+                <h2 style={{ fontSize: 48, fontWeight: 900, margin: "0 0 24px", lineHeight: 1.1, color: COLORS.headerMain }}>{t("welcome")}</h2>
+                <p style={{ color: COLORS.text, fontSize: 19, lineHeight: 1.8, marginBottom: 40, maxWidth: "700px", fontWeight: 500 }}>{t("banner_text")}</p>
+                <div style={{ display: "flex", gap: 20 }}>
+                  <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 6, padding: "16px 40px", fontSize: 18, fontWeight: 700, cursor: "pointer", transition: "all 0.3s", boxShadow: "0 4px 14px rgba(30,77,140,0.4)" }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 20px rgba(30,77,140,0.5)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 14px rgba(30,77,140,0.4)"; }}>{t("view_catalog")}</button>
+                  <button onClick={() => setShowAI(true)} style={{ background: COLORS.white, color: COLORS.headerMain, border: `2px solid ${COLORS.borderBlue}`, borderRadius: 6, padding: "16px 36px", fontSize: 18, cursor: "pointer", fontWeight: 700, transition: "all 0.3s" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = COLORS.lightBlue; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = COLORS.white; }}> {t("ask_help")}</button>
                 </div>
               </div>
 
               {/* Stats */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, marginBottom: 32 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24, marginBottom: 32 }}>
                 {[
-                  { key: "stat_videos", value: "1,250+", icon: "" },
-                  { key: "stat_users", value: "48,300+", icon: "" },
-                  { key: "stat_hours", value: "3,600+", icon: "⏱" },
-                  { key: "stat_inst", value: "120+", icon: "️" },
+                  { key: "stat_videos", value: videos.length, icon: "" },
+                  { key: "stat_users", value: (videos.length * 35).toLocaleString(), icon: "" },
+                  { key: "stat_hours", value: (videos.length * 1.5).toFixed(0), icon: "⏱" },
+                  { key: "stat_inst", value: dbSubjects.length, icon: "️" },
                 ].map((s, i) => (
-                  <div key={i} style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderTop: `4px solid ${COLORS.headerMain}`, borderRadius: 8, padding: "24px 20px", textAlign: "center", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
-                    <div style={{ fontSize: 36, marginBottom: 12 }}>{s.icon}</div>
-                    <div style={{ fontSize: 28, fontWeight: 800, color: COLORS.headerMain, marginBottom: 4 }}>{s.value}</div>
-                    <div style={{ fontSize: 14, color: COLORS.textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>{t(s.key)}</div>
+                  <div key={i} style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderTop: `5px solid ${i % 2 === 0 ? COLORS.headerMain : COLORS.accent}`, borderRadius: 10, padding: "32px 20px", textAlign: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.06)", transition: "transform 0.3s" }}
+                    onMouseEnter={e => e.currentTarget.style.transform = "translateY(-5px)"}
+                    onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
+                    <div style={{ fontSize: 40, marginBottom: 14 }}>{s.icon}</div>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: COLORS.headerMain, marginBottom: 6 }}>{s.value}+</div>
+                    <div style={{ fontSize: 13, color: COLORS.textMuted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>{t(s.key)}</div>
                   </div>
                 ))}
               </div>
