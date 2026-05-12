@@ -3,23 +3,15 @@ import AuthModal from "./AuthModal";
 import AdminPanel from "./AdminPanel";
 
 const COLORS = {
-  headerTop: "#1a3a6b",
   headerMain: "#1e4d8c",
-  navBg: "#154a8a",
-  navHover: "#0d3570",
-  accent: "#c8102e",
-  accentLight: "#e8173a",
+  accent: "#5e5088",
   gold: "#d4a017",
-  bodyBg: "#f5f5f0",
-  white: "#ffffff",
   lightBlue: "#e8f0f8",
   borderBlue: "#b0c8e8",
-  text: "#1a1a2e",
-  textMuted: "#4a5568",
-  footerBg: "#1a3a6b",
-  footerText: "#c8d8f0",
-  tableStripe: "#eef4fc",
-  sectionBorder: "#1e4d8c",
+  white: "#ffffff",
+  tableStripe: "#f4f7f6",
+  text: "#2c3e50",
+  textMuted: "#596a7a"
 };
 
 const TRANSLATIONS = {
@@ -498,10 +490,17 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: COLORS.bodyBg, fontFamily: "'Inter', sans-serif", color: COLORS.text, fontSize: 16 }}>
+    <div style={{ 
+      minHeight: "100vh", 
+      display: "flex", 
+      flexDirection: "column", 
+      background: `url('https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&q=80&w=2000') no-repeat center center fixed`,
+      backgroundSize: "cover",
+      fontFamily: "'Inter', sans-serif" 
+    }}>
 
       {/* TOP BAR */}
-      <div style={{ background: COLORS.headerTop, color: "#c8d8f0", fontSize: 14, padding: "8px 0", borderBottom: "1px solid #0d2a52" }}>
+      <div style={{ background: "rgba(26, 58, 107, 0.9)", color: "#c8d8f0", fontSize: 14, padding: "8px 0", borderBottom: "1px solid #0d2a52" }}>
         <div style={{ width: "100%", padding: "0 40px", display: "flex", justifyContent: "space-between", alignItems: "center", boxSizing: "border-box" }}>
           <span style={{ fontWeight: 600 }}>{t("title")}</span>
           <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
@@ -577,7 +576,7 @@ export default function App() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ width: "100%", padding: "32px 40px", boxSizing: "border-box" }}>
+      <div style={{ width: "100%", maxWidth: 1400, margin: "32px auto", flex: 1, padding: "32px 40px", boxSizing: "border-box", background: "rgba(255, 255, 255, 0.97)", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }}>
 
         {/* ===== BOSH SAHIFA ===== */}
         {activeTab === "main" && (
@@ -763,7 +762,10 @@ export default function App() {
                           <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
                             <button onClick={(e) => { e.stopPropagation(); handleVideoClick(v); }} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{lang === "uz" ? "Ko'rish" : lang === "ru" ? "Смотреть" : "View"}</button>
                             {currentUser?.role === "admin" && (
-                              <button onClick={(e) => { e.stopPropagation(); deleteVideo(v.id); }} style={{ background: COLORS.accent, color: "#fff", border: "none", borderRadius: 4, padding: "8px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>️</button>
+                              <button onClick={(e) => { e.stopPropagation(); deleteVideo(v.id); }} style={{ background: COLORS.accent, color: "#fff", border: "none", borderRadius: 4, padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                {lang === "uz" ? "O'chirish" : lang === "ru" ? "Удалить" : "Delete"}
+                              </button>
                             )}
                           </div>
                         </td>

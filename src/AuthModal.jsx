@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const C = {
     headerMain: "#1e4d8c",
-    accent: "#c8102e",
+    accent: "#5e5088",
     lightBlue: "#e8f0f8",
     borderBlue: "#b0c8e8",
     text: "#1a1a2e",

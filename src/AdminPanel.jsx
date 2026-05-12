@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const C = {
-    headerMain: "#1e4d8c", accent: "#c8102e", gold: "#d4a017",
+    headerMain: "#1e4d8c", accent: "#5e5088", gold: "#d4a017",
     lightBlue: "#e8f0f8", borderBlue: "#b0c8e8", white: "#ffffff",
     tableStripe: "#eef4fc", text: "#1a1a2e", textMuted: "#4a5568",
     green: "#2e7d32", greenLight: "#e8f5e9",
