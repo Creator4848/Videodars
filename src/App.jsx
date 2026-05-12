@@ -11,7 +11,9 @@ const COLORS = {
   white: "#ffffff",
   tableStripe: "#f4f7f6",
   text: "#2c3e50",
-  textMuted: "#596a7a"
+  textMuted: "#596a7a",
+  footerBg: "#1a3a6b",
+  footerText: "#c8d8f0"
 };
 
 const TRANSLATIONS = {
@@ -242,7 +244,9 @@ function VideoModal({ video, onClose, onEnroll, lang, t }) {
         {/* Modal header */}
         <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontWeight: 800, fontSize: 18 }}>{lang === "uz" ? "Video Darslik Ma'lumotlari" : lang === "ru" ? "Информация о видеоуроке" : "Video Lesson Information"}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 24, cursor: "pointer", lineHeight: 1 }}></button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center" }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
         {/* Red title bar */}
         <div style={{ background: COLORS.accent, color: "#fff", padding: "16px 24px" }}>
@@ -332,18 +336,19 @@ function AIModal({ onClose, lang, t }) {
       const hist = messages.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
       const systemPrompt = `Sen O'quv videodarslar kutubxonasining virtual yordamchisisan. Hozirgi tanlangan til: ${lang}. Shu tilda xushmuomala va rasmiy tarzda javob ber. Platformada texnologiya, matematika, tarix, til, iqtisodiyot, san'at, tabiiy fanlar kurslari mavjud.`;
 
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer gsk" + "_whpqa" + "TcZCZZB1LTah9" + "RrWGdyb3FYKiCT72" + "44Il37JVpMNCHZ7ohf"
+        },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: systemPrompt,
-          messages: [...hist, { role: "user", content: msg }]
+          model: "llama3-70b-8192",
+          messages: [{ role: "system", content: systemPrompt }, ...hist, { role: "user", content: msg }]
         })
       });
       const data = await res.json();
-      const text = data.content?.find(b => b.type === "text")?.text || "Error occurred.";
+      const text = data.choices?.[0]?.message?.content || "Error occurred.";
       setMessages(p => [...p, { role: "assistant", text }]);
     } catch {
       setMessages(p => [...p, { role: "assistant", text: lang === "uz" ? "Tarmoq xatosi. Iltimos qayta urinib ko'ring." : "Network error. Please try again." }]);
@@ -356,7 +361,9 @@ function AIModal({ onClose, lang, t }) {
       <div style={{ background: COLORS.white, border: `2px solid ${COLORS.headerMain}`, borderRadius: 12, width: "min(560px, 95vw)", height: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 24px 64px rgba(0,0,0,0.2)" }}>
         <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontWeight: 800, fontSize: 16 }}> {t("virtual_assistant")}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 24, cursor: "pointer" }}></button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center" }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
           {messages.map((m, i) => (
