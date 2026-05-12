@@ -336,19 +336,16 @@ function AIModal({ onClose, lang, t }) {
       const hist = messages.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
       const systemPrompt = `Sen O'quv videodarslar kutubxonasining virtual yordamchisisan. Hozirgi tanlangan til: ${lang}. Shu tilda xushmuomala va rasmiy tarzda javob ber. Platformada texnologiya, matematika, tarix, til, iqtisodiyot, san'at, tabiiy fanlar kurslari mavjud.`;
 
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": "Bearer gsk" + "_whpqa" + "TcZCZZB1LTah9" + "RrWGdyb3FYKiCT72" + "44Il37JVpMNCHZ7ohf"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "llama3-70b-8192",
-          messages: [{ role: "system", content: systemPrompt }, ...hist, { role: "user", content: msg }]
+          system: systemPrompt,
+          messages: hist.concat({ role: "user", content: msg })
         })
       });
       const data = await res.json();
-      const text = data.choices?.[0]?.message?.content || "Error occurred.";
+      const text = data.choices?.[0]?.message?.content || "Xatolik yuz berdi.";
       setMessages(p => [...p, { role: "assistant", text }]);
     } catch {
       setMessages(p => [...p, { role: "assistant", text: lang === "uz" ? "Tarmoq xatosi. Iltimos qayta urinib ko'ring." : "Network error. Please try again." }]);
