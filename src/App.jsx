@@ -532,6 +532,17 @@ export default function App() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  async function enroll(videoId) {
+    try {
+      const r = await fetch("/api/enroll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ videoId, userId: currentUser?.id })
+      });
+      if (r.ok) loadAllData();
+    } catch (err) { console.error(err); }
+  }
+
   async function deleteVideo(id) {
     if (!confirm(lang === "uz" ? "Videoni o'chirishni tasdiqlaysizmi?" : "Confirm video deletion?")) return;
     try {
@@ -931,7 +942,7 @@ export default function App() {
                             <div style={{ fontWeight: 700, color: COLORS.headerMain, fontSize: 16 }}>{v.title}</div>
                             <div style={{ fontSize: 14, color: COLORS.textMuted }}>{v.author}</div>
                           </td>
-                          <td style={{ padding: "14px 24px" }}><CategoryTag cat={CATEGORY_MAP[v.category] || v.category} /></td>
+                          <td style={{ padding: "14px 24px" }}><CategoryTag cat={v.category || (v.subject_id && CATEGORY_LABEL(String(v.subject_id))) || "—"} /></td>
                           <td style={{ padding: "14px 24px", fontSize: 15, color: COLORS.textMuted, fontWeight: 600 }}>{Math.round(v.lessons * v.progress / 100)}/{v.lessons}</td>
                           <td style={{ padding: "14px 24px", width: 240 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
