@@ -14,13 +14,13 @@ function extractYtId(url) {
 }
 
 function AddEditVideoModal({ subjects, videoToEdit, onClose, onSave }) {
-    const [form, setForm] = useState({ 
-        title: videoToEdit?.title || "", 
-        subject_id: videoToEdit?.subject_id || "", 
-        author: videoToEdit?.author || "", 
-        youtubeUrl: videoToEdit?.youtube_id ? `https://youtu.be/${videoToEdit.youtube_id}` : "", 
-        level: videoToEdit?.level || "Boshlang'ich", 
-        description: videoToEdit?.description || "" 
+    const [form, setForm] = useState({
+        title: videoToEdit?.title || "",
+        subject_id: videoToEdit?.subject_id || "",
+        direction: videoToEdit?.direction || "",
+        youtubeUrl: videoToEdit?.youtube_id ? `https://youtu.be/${videoToEdit.youtube_id}` : "",
+        level: videoToEdit?.level || "Boshlang'ich",
+        description: videoToEdit?.description || ""
     });
     const [errors, setErrors] = useState({});
     const [saving, setSaving] = useState(false);
@@ -30,7 +30,7 @@ function AddEditVideoModal({ subjects, videoToEdit, onClose, onSave }) {
         e.preventDefault();
         const errs = {};
         if (!form.title.trim()) errs.title = "Sarlavha kiritilmagan";
-        if (!form.subject_id) errs.subject_id = "Fan tanlanmagan";
+        if (!form.subject_id) errs.subject_id = "Soha tanlanmagan";
         if (Object.keys(errs).length) { setErrors(errs); return; }
         setSaving(true);
         try {
@@ -52,20 +52,23 @@ function AddEditVideoModal({ subjects, videoToEdit, onClose, onSave }) {
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.65)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, backdropFilter: "blur(3px)" }}>
             <div style={{ background: C.white, borderRadius: 10, width: "min(640px,98vw)", maxHeight: "92vh", overflowY: "auto", boxShadow: "0 24px 64px rgba(0,0,0,0.3)", border: `2px solid ${C.headerMain}` }}>
                 <div style={{ background: C.headerMain, color: "#fff", padding: "14px 22px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontWeight: 800, fontSize: 17 }}>{videoToEdit ? "Videoni Tahrirlash" : "Yangi Video Qo'shish"}</span>
+                    <span style={{ fontWeight: 800, fontSize: 17 }}>{videoToEdit ? "Videoni Tahrirlash" : "Yangi Video Darslik Qo'shish"}</span>
                     <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", fontSize: 22, cursor: "pointer" }}>✕</button>
                 </div>
                 <form onSubmit={submit} style={{ padding: 24, display: "grid", gap: 16 }}>
+                    {/* Sarlavha */}
                     <div>
                         <label style={lbl}>Sarlavha *</label>
                         <input value={form.title} onChange={e => upd("title", e.target.value)} placeholder="Video dars sarlavhasi" style={inp} />
                         {errors.title && <div style={{ color: C.accent, fontSize: 12, marginTop: 4 }}>{errors.title}</div>}
                     </div>
+
+                    {/* Soha nomi + Daraja */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                         <div>
-                            <label style={lbl}>Fan *</label>
+                            <label style={lbl}>Soha nomi *</label>
                             <select value={form.subject_id} onChange={e => upd("subject_id", e.target.value)} style={{ ...inp, paddingRight: 24 }}>
-                                <option value="">-- Fan tanlang --</option>
+                                <option value="">-- Soha tanlang --</option>
                                 {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                             </select>
                             {errors.subject_id && <div style={{ color: C.accent, fontSize: 12, marginTop: 4 }}>{errors.subject_id}</div>}
@@ -77,23 +80,38 @@ function AddEditVideoModal({ subjects, videoToEdit, onClose, onSave }) {
                             </select>
                         </div>
                     </div>
+
+                    {/* Yo'nalish nomi */}
                     <div>
-                        <label style={lbl}>Muallif</label>
-                        <input value={form.author} onChange={e => upd("author", e.target.value)} placeholder="Prof. A. Nazarov" style={inp} />
+                        <label style={lbl}>Yo'nalish nomi</label>
+                        <input
+                            value={form.direction}
+                            onChange={e => upd("direction", e.target.value)}
+                            placeholder="Masalan: HTML, CSS, JavaScript"
+                            style={inp}
+                        />
+                        <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>
+                            Soha ichidagi aniq yo'nalish yoki mavzu
+                        </div>
                     </div>
+
+                    {/* YouTube */}
                     <div>
                         <label style={lbl}>YouTube havolasi</label>
                         <input value={form.youtubeUrl} onChange={e => upd("youtubeUrl", e.target.value)} placeholder="https://youtu.be/... yoki https://youtube.com/watch?v=..." style={inp} />
                         {ytId && (
                             <div style={{ marginTop: 10, borderRadius: 6, overflow: "hidden", border: `1px solid ${C.borderBlue}` }}>
-                                <iframe width="100%" height="200" src={`https://www.youtube.com/embed/${ytId}`} frameBorder="0" allowFullScreen title="preview" />
+                                <iframe width="100%" height="200" src={`https://www.youtube.com/embed/${ytId}`} style={{ border: "none" }} allowFullScreen title="preview" />
                             </div>
                         )}
                     </div>
+
+                    {/* Tavsif */}
                     <div>
                         <label style={lbl}>Tavsif</label>
                         <textarea rows={3} value={form.description} onChange={e => upd("description", e.target.value)} placeholder="Video dars haqida qisqacha ma'lumot..." style={{ ...inp, resize: "vertical" }} />
                     </div>
+
                     {errors.submit && <div style={{ background: "#ffebee", border: `1px solid #ef9a9a`, borderRadius: 6, padding: "10px 14px", color: "#c62828", fontSize: 14, fontWeight: 600 }}>{errors.submit}</div>}
                     <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
                         <button type="button" onClick={onClose} style={{ background: C.white, border: `2px solid ${C.borderBlue}`, color: C.textMuted, borderRadius: 5, padding: "10px 26px", fontSize: 15, cursor: "pointer", fontWeight: 600 }}>Bekor qilish</button>
@@ -146,13 +164,13 @@ export default function AdminPanel({ onLogout, onRefresh }) {
             setSubjects(p => [...p, data]);
             setNewSubjectName("");
             if (!selSubject) setSelSubject(data);
-            flash("Fan qo'shildi ✓");
+            flash("Soha qo'shildi ✓");
             if (onRefresh) onRefresh();
         }
     }
 
     async function deleteSubject(id) {
-        if (!confirm("Fanni o'chirishni tasdiqlaysizmi? Unga tegishli barcha videolar ham o'chadi.")) return;
+        if (!confirm("Sohani o'chirishni tasdiqlaysizmi? Unga tegishli barcha videolar ham o'chadi.")) return;
         const r = await fetch(`/api/subjects?id=${id}`, { method: "DELETE" });
         if (r.ok) {
             const updated = subjects.filter(s => s.id !== id);
@@ -212,11 +230,11 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                 <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, alignItems: "start" }}>
                     {/* Subjects sidebar */}
                     <div style={{ background: C.white, border: `1px solid ${C.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-                        {hdr("Fanlar")}
+                        {hdr("Sohalar")}
                         <div style={{ padding: 14, borderBottom: `1px solid ${C.borderBlue}` }}>
                             <div style={{ display: "flex", gap: 8 }}>
                                 <input value={newSubjectName} onChange={e => setNewSubjectName(e.target.value)}
-                                    placeholder="Yangi fan nomi" onKeyDown={e => e.key === "Enter" && addSubject()}
+                                    placeholder="Yangi soha nomi" onKeyDown={e => e.key === "Enter" && addSubject()}
                                     style={{ flex: 1, border: `1px solid ${C.borderBlue}`, borderRadius: 5, padding: "8px 10px", fontSize: 14, outline: "none" }} />
                                 <button onClick={addSubject} style={{ background: C.headerMain, color: "#fff", border: "none", borderRadius: 5, padding: "8px 14px", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>+</button>
                             </div>
@@ -248,7 +266,7 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                             <div style={{ padding: 40, textAlign: "center", color: C.textMuted }}>⏳ Yuklanmoqda...</div>
                         ) : subjectVideos.length === 0 ? (
                             <div style={{ padding: 64, textAlign: "center", color: C.textMuted }}>
-                                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Bu fanda hali videolar yo'q</div>
+                                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Bu sohada hali videolar yo'q</div>
                                 <button onClick={() => setShowAddVideo(true)} style={{ background: C.headerMain, color: "#fff", border: "none", borderRadius: 5, padding: "10px 24px", cursor: "pointer", fontWeight: 700 }}>+ Birinchi videoni qo'shing</button>
                             </div>
                         ) : (
@@ -256,7 +274,7 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                                     <thead>
                                         <tr style={{ background: C.tableStripe, borderBottom: `2px solid ${C.borderBlue}` }}>
-                                            {["#", "Sarlavha", "Muallif", "Fan", "YouTube", "Amallar"].map((h, i) => (
+                                            {["#", "Sarlavha", "Yo'nalish", "Soha", "YouTube", "Amallar"].map((h, i) => (
                                                 <th key={i} style={{ padding: "12px 16px", textAlign: "left", fontSize: 13, color: C.headerMain, fontWeight: 700, whiteSpace: "nowrap" }}>{h}</th>
                                             ))}
                                         </tr>
@@ -269,7 +287,7 @@ export default function AdminPanel({ onLogout, onRefresh }) {
                                                     <div style={{ fontWeight: 700, color: C.headerMain, fontSize: 14 }}>{v.title}</div>
                                                     {v.description && <div style={{ fontSize: 12, color: C.textMuted, marginTop: 2 }}>{v.description.slice(0, 60)}{v.description.length > 60 ? "..." : ""}</div>}
                                                 </td>
-                                                <td style={{ padding: "12px 16px", fontSize: 13, color: C.textMuted, whiteSpace: "nowrap" }}>{v.author || "—"}</td>
+                                                <td style={{ padding: "12px 16px", fontSize: 13, color: C.textMuted }}>{v.direction || "—"}</td>
                                                 <td style={{ padding: "12px 16px", fontSize: 13, color: C.textMuted }}>
                                                     {v.subject_name || (subjects.find(s => s.id === v.subject_id)?.name || "—")}
                                                 </td>

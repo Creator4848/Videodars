@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         id SERIAL PRIMARY KEY,
         title VARCHAR(500) NOT NULL,
         subject_id INTEGER REFERENCES subjects(id) ON DELETE CASCADE,
-        author VARCHAR(255) DEFAULT '',
+        direction VARCHAR(255) DEFAULT '',
         youtube_id VARCHAR(100) DEFAULT '',
         level VARCHAR(50) DEFAULT 'Boshlang''ich',
         description TEXT DEFAULT '',

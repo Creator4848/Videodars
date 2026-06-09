@@ -48,26 +48,26 @@ export default async function handler(req, res) {
         }
 
         if (req.method === "POST") {
-            const { title, subject_id, author, youtubeUrl, level, description } = req.body;
-            if (!title || !subject_id) return res.status(400).json({ error: "Sarlavha va fan majburiy" });
+            const { title, subject_id, direction, youtubeUrl, level, description } = req.body;
+            if (!title || !subject_id) return res.status(400).json({ error: "Sarlavha va soha majburiy" });
 
             const youtubeId = extractYoutubeId(youtubeUrl || "");
             const result = await sql`
-        INSERT INTO videos (title, subject_id, author, youtube_id, level, description)
-        VALUES (${title}, ${subject_id}, ${author || ""}, ${youtubeId}, ${level || "Boshlang'ich"}, ${description || ""})
+        INSERT INTO videos (title, subject_id, direction, youtube_id, level, description)
+        VALUES (${title}, ${subject_id}, ${direction || ""}, ${youtubeId}, ${level || "Boshlang'ich"}, ${description || ""})
         RETURNING *
       `;
             return res.status(201).json(result[0]);
         }
 
         if (req.method === "PUT") {
-            const { id, title, subject_id, author, youtubeUrl, level, description } = req.body;
-            if (!id || !title || !subject_id) return res.status(400).json({ error: "ID, sarlavha va fan majburiy" });
+            const { id, title, subject_id, direction, youtubeUrl, level, description } = req.body;
+            if (!id || !title || !subject_id) return res.status(400).json({ error: "ID, sarlavha va soha majburiy" });
 
             const youtubeId = extractYoutubeId(youtubeUrl || "");
             const result = await sql`
-        UPDATE videos 
-        SET title = ${title}, subject_id = ${subject_id}, author = ${author || ""}, youtube_id = ${youtubeId}, level = ${level || "Boshlang'ich"}, description = ${description || ""}
+        UPDATE videos
+        SET title = ${title}, subject_id = ${subject_id}, direction = ${direction || ""}, youtube_id = ${youtubeId}, level = ${level || "Boshlang'ich"}, description = ${description || ""}
         WHERE id = ${id}
         RETURNING *
       `;
