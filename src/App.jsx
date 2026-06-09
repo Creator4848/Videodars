@@ -229,7 +229,7 @@ function VideoRow({ video, onClick, idx }) {
   );
 }
 
-function VideoModal({ video, onClose, onEnroll, lang, t }) {
+function VideoModal({ video, onClose, onEnroll, onEnrollRequest, lang, t }) {
   const CATEGORY_MAP = {
     "Tabiiy fanlar": t("cat_science"),
     "Ijtimoiy fanlar": t("cat_social"),
@@ -241,7 +241,7 @@ function VideoModal({ video, onClose, onEnroll, lang, t }) {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 900, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, backdropFilter: "blur(4px)" }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1050, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, backdropFilter: "blur(4px)" }}>
       <div style={{ background: COLORS.white, border: `2px solid ${COLORS.headerMain}`, borderRadius: 12, width: "min(900px, 100%)", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 64px rgba(0,0,0,0.4)" }}>
         {/* Modal header */}
         <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -311,7 +311,7 @@ function VideoModal({ video, onClose, onEnroll, lang, t }) {
             <button onClick={onClose} style={{ background: COLORS.white, border: `2px solid ${COLORS.borderBlue}`, color: COLORS.textMuted, borderRadius: 4, padding: "12px 32px", fontSize: 16, fontWeight: 700, cursor: "pointer" }}>{lang === "uz" ? "Yopish" : lang === "ru" ? "Закрыть" : "Close"}</button>
             {video.enrolled
               ? <button style={{ background: "#2e7d32", color: "#fff", border: "none", borderRadius: 4, padding: "12px 40px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(46,125,50,0.3)" }}> {lang === "uz" ? "Davom ettirish" : lang === "ru" ? "Продолжить" : "Continue"}</button>
-              : <button onClick={() => { onEnroll(video.id); onClose(); }} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "12px 40px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(30,77,140,0.3)" }}>{t("register")}</button>}
+              : <button onClick={() => { onEnrollRequest(video); }} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 4, padding: "12px 40px", fontSize: 16, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(30,77,140,0.3)" }}>{lang === "uz" ? "Yozilish" : lang === "ru" ? "Записаться" : "Enroll"}</button>}
           </div>
         </div>
       </div>
@@ -449,13 +449,8 @@ export default function App() {
   }
 
   function handleVideoClick(video) {
-    if (!currentUser) {
-      setPendingVideo(video);
-      setAuthInitialTab("login");
-      setShowAuthModal(true);
-    } else {
-      setSelectedVideo(video);
-    }
+    // Always open video modal - login only needed for enrolling
+    setSelectedVideo(video);
   }
 
   // Merge static + DB videos
@@ -1013,7 +1008,24 @@ export default function App() {
       </footer>
 
       {/* MODALS */}
-      {selectedVideo && <VideoModal video={selectedVideo} onClose={() => setSelectedVideo(null)} onEnroll={enroll} lang={lang} t={t} />}
+      {selectedVideo && <VideoModal
+        video={selectedVideo}
+        onClose={() => setSelectedVideo(null)}
+        onEnroll={enroll}
+        onEnrollRequest={(video) => {
+          if (!currentUser) {
+            setPendingVideo(video);
+            setAuthInitialTab("login");
+            setSelectedVideo(null);
+            setShowAuthModal(true);
+          } else {
+            enroll(video.id);
+            setSelectedVideo(null);
+          }
+        }}
+        lang={lang}
+        t={t}
+      />}
       {showAI && <AIModal onClose={() => setShowAI(false)} lang={lang} t={t} />}
       {showAuthModal && (
         <AuthModal
