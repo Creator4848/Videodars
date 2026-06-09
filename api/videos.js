@@ -51,6 +51,8 @@ export default async function handler(req, res) {
             const { title, subject_id, direction, youtubeUrl, level, description } = req.body;
             if (!title || !subject_id) return res.status(400).json({ error: "Sarlavha va soha majburiy" });
 
+            await sql`ALTER TABLE videos ADD COLUMN IF NOT EXISTS direction VARCHAR(255) DEFAULT ''`;
+
             const youtubeId = extractYoutubeId(youtubeUrl || "");
             const result = await sql`
         INSERT INTO videos (title, subject_id, direction, youtube_id, level, description)
@@ -63,6 +65,8 @@ export default async function handler(req, res) {
         if (req.method === "PUT") {
             const { id, title, subject_id, direction, youtubeUrl, level, description } = req.body;
             if (!id || !title || !subject_id) return res.status(400).json({ error: "ID, sarlavha va soha majburiy" });
+
+            await sql`ALTER TABLE videos ADD COLUMN IF NOT EXISTS direction VARCHAR(255) DEFAULT ''`;
 
             const youtubeId = extractYoutubeId(youtubeUrl || "");
             const result = await sql`
