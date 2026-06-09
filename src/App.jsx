@@ -319,7 +319,7 @@ function VideoModal({ video, onClose, onEnroll, onEnrollRequest, lang, t }) {
   );
 }
 
-function AIModal({ onClose, lang, t }) {
+function AIModal({ onClose, lang, t, isMobile }) {
   const greeting = lang === "uz" ? "Assalomu alaykum! O'quv videodarslar kutubxonasiga xush kelibsiz. Sizga qanday yordam bera olaman?" : lang === "ru" ? "Здравствуйте! Добро пожаловать в библиотеку видеоуроков. Чем я могу вам помочь?" : "Hello! Welcome to the Video Lessons Library. How can I help you?";
 
   const [messages, setMessages] = useState([{ role: "assistant", text: greeting }]);
@@ -336,7 +336,15 @@ function AIModal({ onClose, lang, t }) {
     setLoading(true);
     try {
       const hist = messages.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }));
-      const systemPrompt = `Sen O'quv videodarslar kutubxonasining virtual yordamchisisan. Hozirgi tanlangan til: ${lang}. Shu tilda xushmuomala va rasmiy tarzda javob ber. Platformada texnologiya, matematika, tarix, til, iqtisodiyot, san'at, tabiiy fanlar kurslari mavjud.`;
+      const systemPrompt = `Sen O'quv videodarslar kutubxonasining professional virtual yordamchisisan. Til: ${lang}.
+
+Qoidalar:
+- Foydalanuvchi salomlashsa, FAQAT qisqacha javob ber va qanday yordam kerakligini so'ra. Hech qachon "xush kelibsiz" yoki "yana bir marta xush kelibsiz" deb takroriy salomlashma. Masalan: "Salom! Qanday yordam kerak?"
+- Akademik, professional va foydali javob ber.
+- Savolga aniq, to'liq va qulay tarzda javob ber.
+- Platformada mavjud kurslar: Python va dasturlash, oliy matematika (integral, algebra), O'zbekiston tarixi, ingliz tili va IELTS, iqtisodiyot nazariyasi, akvarell va san'at, kvant fizikasi.
+- Kurs tavsiyasi so'ralganda, avval foydalanuvchining qiziqishi va darajasini aniqla.
+- Keraksiz so'z ishlatilingmasdan, lo'nda va samarali javob ber.`;
 
       const payload = {
         model: "llama-3.1-8b-instant",
@@ -370,8 +378,8 @@ function AIModal({ onClose, lang, t }) {
   }
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
-      <div style={{ background: COLORS.white, border: `2px solid ${COLORS.headerMain}`, borderRadius: 12, width: "min(560px, 95vw)", height: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 24px 64px rgba(0,0,0,0.2)" }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1000, display: "flex", alignItems: isMobile ? "flex-end" : "center", justifyContent: "center", backdropFilter: "blur(2px)" }}>
+      <div style={{ background: COLORS.white, border: `2px solid ${COLORS.headerMain}`, borderRadius: isMobile ? "12px 12px 0 0" : 12, width: isMobile ? "100vw" : "min(560px, 95vw)", height: isMobile ? "90vh" : "80vh", display: "flex", flexDirection: "column", boxShadow: "0 24px 64px rgba(0,0,0,0.2)" }}>
         <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontWeight: 800, fontSize: 16 }}> {t("virtual_assistant")}</span>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", display: "flex", alignItems: "center" }}>
@@ -463,6 +471,12 @@ export default function App() {
   const [showAI, setShowAI] = useState(false);
   const [sortBy, setSortBy] = useState("date");
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   async function deleteVideo(id) {
     if (!confirm(lang === "uz" ? "Videoni o'chirishni tasdiqlaysizmi?" : "Confirm video deletion?")) return;
@@ -516,13 +530,13 @@ export default function App() {
 
       {/* TOP BAR */}
       <div style={{ background: "rgba(26, 58, 107, 0.9)", color: "#c8d8f0", fontSize: 14, padding: "8px 0", borderBottom: "1px solid #0d2a52" }}>
-        <div style={{ width: "100%", padding: "0 40px", display: "flex", justifyContent: "space-between", alignItems: "center", boxSizing: "border-box" }}>
-          <span style={{ fontWeight: 600 }}>{t("title")}</span>
-          <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
-            <span style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }} onClick={() => setShowAI(true)}> {t("virtual_assistant")}</span>
+        <div style={{ width: "100%", padding: isMobile ? "0 16px" : "0 40px", display: "flex", justifyContent: "space-between", alignItems: "center", boxSizing: "border-box", flexWrap: "wrap", gap: 8 }}>
+          {!isMobile && <span style={{ fontWeight: 600 }}>{t("title")}</span>}
+          <div style={{ display: "flex", gap: isMobile ? 12 : 24, alignItems: "center", flexWrap: "wrap" }}>
+            {!isMobile && <span style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }} onClick={() => setShowAI(true)}> {t("virtual_assistant")}</span>}
             {currentUser ? (
               <>
-                <span style={{ fontWeight: 700, color: "#fff" }}> {currentUser.fullName || currentUser.full_name}</span>
+                <span style={{ fontWeight: 700, color: "#fff" }}>{currentUser.fullName || currentUser.full_name}</span>
                 {currentUser.role === "admin" && <span style={{ background: "#d4a017", color: "#000", borderRadius: 3, padding: "1px 8px", fontSize: 12, fontWeight: 800 }}>ADMIN</span>}
                 <span style={{ cursor: "pointer", color: "#ffcdd2" }} onClick={logout}>Chiqish</span>
               </>
@@ -532,7 +546,7 @@ export default function App() {
                 <span style={{ cursor: "pointer" }} onClick={() => { setAuthInitialTab("register"); setShowAuthModal(true); }}>{t("register")}</span>
               </>
             )}
-            <div style={{ display: "flex", gap: 10, background: "rgba(255,255,255,0.1)", padding: "2px 8px", borderRadius: 4 }}>
+            <div style={{ display: "flex", gap: 8, background: "rgba(255,255,255,0.1)", padding: "2px 8px", borderRadius: 4 }}>
               <span onClick={() => setLang("uz")} style={{ cursor: "pointer", fontWeight: lang === "uz" ? 700 : 400, color: lang === "uz" ? "#fff" : "inherit" }}>O'z</span>
               <span style={{ opacity: 0.3 }}>|</span>
               <span onClick={() => setLang("ru")} style={{ cursor: "pointer", fontWeight: lang === "ru" ? 700 : 400, color: lang === "ru" ? "#fff" : "inherit" }}>Ру</span>
@@ -545,25 +559,22 @@ export default function App() {
 
       {/* HEADER */}
       <header style={{ background: COLORS.headerMain, borderBottom: `4px solid ${COLORS.accent}` }}>
-        <div style={{ width: "100%", padding: "24px 40px", display: "flex", alignItems: "center", gap: 24, boxSizing: "border-box" }}>
-          {/* Logo removed */}
-          <div style={{ flex: 1 }}>
-            <h1 style={{ color: "#fff", fontSize: 32, fontWeight: 800, margin: 0, lineHeight: 1.1, letterSpacing: "-0.5px" }}>{t("title")}</h1>
-            <div style={{ color: "#b8d0f0", fontSize: 16, marginTop: 6, fontWeight: 500, opacity: 0.9 }}>{t("subtitle")}</div>
+        <div style={{ width: "100%", padding: isMobile ? "16px" : "24px 40px", display: "flex", alignItems: "center", gap: isMobile ? 12 : 24, boxSizing: "border-box", flexWrap: isMobile ? "wrap" : "nowrap" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{ color: "#fff", fontSize: isMobile ? 20 : 32, fontWeight: 800, margin: 0, lineHeight: 1.2, letterSpacing: "-0.5px" }}>{t("title")}</h1>
+            {!isMobile && <div style={{ color: "#b8d0f0", fontSize: 16, marginTop: 6, fontWeight: 500, opacity: 0.9 }}>{t("subtitle")}</div>}
           </div>
           {/* Search */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <div style={{ display: "flex", border: "2px solid rgba(255,255,255,0.2)", borderRadius: 6, overflow: "hidden", width: 480, height: 48, background: "#fff" }}>
-              <select style={{ background: COLORS.lightBlue, color: COLORS.headerMain, border: "none", padding: "0 16px", fontSize: 14, cursor: "pointer", outline: "none", fontWeight: 600, borderRight: `1px solid ${COLORS.borderBlue}` }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", width: isMobile ? "100%" : "auto" }}>
+            <div style={{ display: "flex", border: "2px solid rgba(255,255,255,0.2)", borderRadius: 6, overflow: "hidden", width: isMobile ? "100%" : 480, height: 44, background: "#fff" }}>
+              {!isMobile && <select style={{ background: COLORS.lightBlue, color: COLORS.headerMain, border: "none", padding: "0 16px", fontSize: 14, cursor: "pointer", outline: "none", fontWeight: 600, borderRight: `1px solid ${COLORS.borderBlue}` }}>
                 <option>{t("search_all")}</option>
                 <option>{t("search_title")}</option>
                 <option>{t("search_author")}</option>
                 <option>{t("search_cat")}</option>
-              </select>
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("search_placeholder")} style={{ flex: 1, border: "none", padding: "0 16px", fontSize: 15, outline: "none" }} />
-              <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.accent, color: "#fff", border: "none", padding: "0 20px", cursor: "pointer", fontSize: 18, transition: "background 0.2s" }}
-                onMouseEnter={e => e.currentTarget.style.background = COLORS.accentLight}
-                onMouseLeave={e => e.currentTarget.style.background = COLORS.accent}></button>
+              </select>}
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("search_placeholder")} style={{ flex: 1, border: "none", padding: "0 16px", fontSize: 15, outline: "none", minWidth: 0 }} />
+              <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.accent, color: "#fff", border: "none", padding: "0 18px", cursor: "pointer", fontSize: 18, flexShrink: 0 }}></button>
             </div>
           </div>
         </div>
@@ -571,38 +582,58 @@ export default function App() {
 
       {/* NAVIGATION */}
       <nav style={{ background: COLORS.navBg, borderBottom: `1px solid ${COLORS.navHover}`, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-        <div style={{ width: "100%", padding: "0 40px", display: "flex", boxSizing: "border-box" }}>
-          {NAV.map(item => (
-            <button key={item.id} onClick={() => setActiveTab(item.id)} style={{ background: activeTab === item.id ? COLORS.accent : "none", color: "#fff", border: "none", padding: "16px 28px", fontSize: 16, cursor: "pointer", fontFamily: "inherit", borderRight: "1px solid rgba(255,255,255,0.1)", fontWeight: activeTab === item.id ? 700 : 500, transition: "all 0.2s", letterSpacing: "0.3px" }}
-              onMouseEnter={e => { if (activeTab !== item.id) e.currentTarget.style.background = COLORS.navHover; }}
-              onMouseLeave={e => { if (activeTab !== item.id) e.currentTarget.style.background = "none"; }}>
-              {item.label}
-            </button>
-          ))}
-        </div>
+        {isMobile ? (
+          <>
+            <div style={{ width: "100%", padding: "0 16px", display: "flex", justifyContent: "space-between", alignItems: "center", boxSizing: "border-box" }}>
+              <span style={{ color: "#fff", fontSize: 15, fontWeight: 700, padding: "14px 0" }}>{NAV.find(n => n.id === activeTab)?.label}</span>
+              <button onClick={() => setMobileMenu(v => !v)} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: 26, padding: "10px 4px", lineHeight: 1 }}>
+                {mobileMenu ? "✕" : "☰"}
+              </button>
+            </div>
+            {mobileMenu && (
+              <div style={{ background: COLORS.navBg, borderTop: "1px solid rgba(255,255,255,0.12)" }}>
+                {NAV.map(item => (
+                  <button key={item.id} onClick={() => { setActiveTab(item.id); setMobileMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", background: activeTab === item.id ? COLORS.accent : "none", color: "#fff", border: "none", padding: "14px 20px", fontSize: 15, cursor: "pointer", fontFamily: "inherit", fontWeight: activeTab === item.id ? 700 : 500, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ width: "100%", padding: "0 40px", display: "flex", boxSizing: "border-box" }}>
+            {NAV.map(item => (
+              <button key={item.id} onClick={() => setActiveTab(item.id)} style={{ background: activeTab === item.id ? COLORS.accent : "none", color: "#fff", border: "none", padding: "16px 28px", fontSize: 16, cursor: "pointer", fontFamily: "inherit", borderRight: "1px solid rgba(255,255,255,0.1)", fontWeight: activeTab === item.id ? 700 : 500, transition: "all 0.2s", letterSpacing: "0.3px" }}
+                onMouseEnter={e => { if (activeTab !== item.id) e.currentTarget.style.background = COLORS.navHover; }}
+                onMouseLeave={e => { if (activeTab !== item.id) e.currentTarget.style.background = "none"; }}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* BREADCRUMB */}
       <div style={{ background: COLORS.lightBlue, borderBottom: `1px solid ${COLORS.borderBlue}`, padding: "10px 0" }}>
-        <div style={{ width: "100%", padding: "0 40px", fontSize: 14, color: COLORS.textMuted, boxSizing: "border-box", fontWeight: 500 }}>
+        <div style={{ width: "100%", padding: isMobile ? "0 16px" : "0 40px", fontSize: 14, color: COLORS.textMuted, boxSizing: "border-box", fontWeight: 500 }}>
            <span style={{ color: COLORS.headerMain, cursor: "pointer" }} onClick={() => setActiveTab("main")}>{t("nav_home")}</span>
           {activeTab !== "main" && <> <span style={{ margin: "0 8px", opacity: 0.5 }}>/</span> <span style={{ color: COLORS.headerMain }}>{NAV.find(n => n.id === activeTab)?.label}</span></>}
         </div>
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ width: "100%", maxWidth: 1400, margin: "32px auto", flex: 1, padding: "32px 40px", boxSizing: "border-box", background: "rgba(255, 255, 255, 0.97)", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }}>
+      <div style={{ width: "100%", maxWidth: 1400, margin: isMobile ? "0 auto" : "32px auto", flex: 1, padding: isMobile ? "16px" : "32px 40px", boxSizing: "border-box", background: "rgba(255, 255, 255, 0.97)", borderRadius: isMobile ? 0 : 12, boxShadow: isMobile ? "none" : "0 8px 32px rgba(0,0,0,0.15)" }}>
 
         {/* ===== BOSH SAHIFA ===== */}
         {activeTab === "main" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: isMobile ? 16 : 32 }}>
             <div>
               {/* Banner */}
-              <div style={{ background: COLORS.white, border: `2px solid ${COLORS.borderBlue}`, borderRadius: 12, padding: "56px", marginBottom: 32, position: "relative", overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,0.08)" }}>
+              <div style={{ background: COLORS.white, border: `2px solid ${COLORS.borderBlue}`, borderRadius: 12, padding: isMobile ? "24px 20px" : "56px", marginBottom: isMobile ? 16 : 32, position: "relative", overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,0.08)" }}>
                 <div style={{ position: "absolute", right: -30, top: -30, fontSize: 180, opacity: 0.03, color: COLORS.headerMain }}></div>
-                <h2 style={{ fontSize: 48, fontWeight: 900, margin: "0 0 24px", lineHeight: 1.1, color: COLORS.headerMain }}>{t("welcome")}</h2>
-                <p style={{ color: COLORS.text, fontSize: 19, lineHeight: 1.8, marginBottom: 40, maxWidth: "700px", fontWeight: 500 }}>{t("banner_text")}</p>
-                <div style={{ display: "flex", gap: 20 }}>
+                <h2 style={{ fontSize: isMobile ? 26 : 48, fontWeight: 900, margin: "0 0 16px", lineHeight: 1.2, color: COLORS.headerMain }}>{t("welcome")}</h2>
+                <p style={{ color: COLORS.text, fontSize: isMobile ? 15 : 19, lineHeight: 1.8, marginBottom: isMobile ? 24 : 40, fontWeight: 500 }}>{t("banner_text")}</p>
+                <div style={{ display: "flex", gap: isMobile ? 10 : 20, flexWrap: "wrap" }}>
                   <button onClick={() => setActiveTab("catalog")} style={{ background: COLORS.headerMain, color: "#fff", border: "none", borderRadius: 6, padding: "16px 40px", fontSize: 18, fontWeight: 700, cursor: "pointer", transition: "all 0.3s", boxShadow: "0 4px 14px rgba(30,77,140,0.4)" }}
                     onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "0 8px 20px rgba(30,77,140,0.5)"; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 14px rgba(30,77,140,0.4)"; }}>{t("view_catalog")}</button>
@@ -613,7 +644,7 @@ export default function App() {
               </div>
 
               {/* Stats */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24, marginBottom: 32 }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: isMobile ? 12 : 24, marginBottom: isMobile ? 16 : 32 }}>
                 {[
                   { key: "stat_videos", value: videos.length, icon: "" },
                   { key: "stat_users", value: (videos.length * 35).toLocaleString(), icon: "" },
@@ -868,7 +899,7 @@ export default function App() {
 
         {/* ===== ABOUT ===== */}
         {activeTab === "about" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 340px", gap: isMobile ? 16 : 32 }}>
             <div style={{ background: COLORS.white, border: `1px solid ${COLORS.borderBlue}`, borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
               <div style={{ background: COLORS.headerMain, color: "#fff", padding: "16px 24px", fontSize: 18, fontWeight: 700 }}>{t("nav_about")}</div>
               <div style={{ padding: 32, lineHeight: 1.8, fontSize: 16, color: COLORS.text }}>
@@ -948,7 +979,7 @@ export default function App() {
       <footer style={{ background: COLORS.footerBg, color: COLORS.footerText, marginTop: 64 }}>
         {/* Links bar */}
         <div style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", padding: "24px 0" }}>
-          <div style={{ width: "100%", padding: "0 40px", display: "flex", gap: 32, flexWrap: "wrap", fontSize: 14, boxSizing: "border-box", fontWeight: 500 }}>
+          <div style={{ width: "100%", padding: isMobile ? "0 16px" : "0 40px", display: "flex", gap: isMobile ? 16 : 32, flexWrap: "wrap", fontSize: 14, boxSizing: "border-box", fontWeight: 500 }}>
             {[
               lang === "uz" ? "Ta'lim portal" : "Образовательный портал",
               lang === "uz" ? "Foydali resurslar" : "Полезные ресурсы",
@@ -961,7 +992,7 @@ export default function App() {
           </div>
         </div>
         {/* Main footer */}
-        <div style={{ width: "100%", padding: "48px 40px", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr", gap: 48, boxSizing: "border-box" }}>
+        <div style={{ width: "100%", padding: isMobile ? "32px 16px" : "48px 40px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.5fr 1fr 1fr", gap: isMobile ? 24 : 48, boxSizing: "border-box" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
               {/* Logo removed */}
@@ -1002,7 +1033,7 @@ export default function App() {
             </div>
           </div>
         </div>
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", padding: "20px 40px", textAlign: "center", fontSize: 13, color: "#7a9cc8", fontWeight: 500 }}>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", padding: isMobile ? "16px" : "20px 40px", textAlign: "center", fontSize: 13, color: "#7a9cc8", fontWeight: 500 }}>
            2026 {t("title")}. {t("footer_rights")}
         </div>
       </footer>
@@ -1026,7 +1057,7 @@ export default function App() {
         lang={lang}
         t={t}
       />}
-      {showAI && <AIModal onClose={() => setShowAI(false)} lang={lang} t={t} />}
+      {showAI && <AIModal onClose={() => setShowAI(false)} lang={lang} t={t} isMobile={isMobile} />}
       {showAuthModal && (
         <AuthModal
           onClose={() => { setShowAuthModal(false); setPendingVideo(null); }}

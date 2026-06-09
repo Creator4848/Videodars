@@ -15,3 +15,26 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* Mobile scroll for wide tables */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  /* Prevent horizontal page overflow */
+  body, #root {
+    overflow-x: hidden;
+  }
+
+  /* Make catalog/table cells readable on mobile */
+  table {
+    font-size: 13px !important;
+  }
+
+  /* Input and select fix on iOS */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
